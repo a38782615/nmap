@@ -38,3 +38,5 @@ demo/Assets/UnityVS/
 /demo/*.htm
 /demo/webgl
 /export
+demo/.idea
+demo/Logs
