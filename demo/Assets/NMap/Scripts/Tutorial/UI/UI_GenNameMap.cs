@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Assets.Map;
+using Unity.Mathematics;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -141,9 +142,9 @@ public class UI_GenNameMap : MonoBehaviour
 
         new MapTexture(TextureScale).AttachTexture(_showMap, map, noisyEdge);
     }
-    public static System.Func<Vector2, bool> CheckIsland()
+    public static System.Func<float2, bool> CheckIsland()
     {
-        System.Func<Vector2, bool> inside = q =>
+        System.Func<float2, bool> inside = q =>
         {
             int x = Convert.ToInt32(q.x / Width * _txtWidth);
             int y = Convert.ToInt32(q.y / Height * _txtHeight);

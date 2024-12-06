@@ -22,11 +22,10 @@ namespace Assets.Map
         public Map2()
         {
         }
-        List<float2> f2l = new List<float2>();
-        public void Init(Func<Vector2, bool> checkIsland = null)
+        public void Init(Func<float2, bool> checkIsland = null)
         {
             List<uint> colors = new List<uint>();
-            var points = new List<Vector2>();
+            var points = new List<float2>();
 
             for (int i = 0; i < _pointCount; i++)
             {
@@ -40,12 +39,7 @@ namespace Assets.Map
             for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
                 points = Graph.RelaxPoints(points, Width, Height).ToList();
 
-            f2l.Clear();
-            foreach (var p in points)
-            {
-                f2l.Add(p);
-            }
-            var voronoi = new Voronoi(f2l, colors, new RectangleF(0, 0, Width, Height));
+            var voronoi = new Voronoi(points, colors, new RectangleF(0, 0, Width, Height));
 
             checkIsland = checkIsland ?? IslandShape.makePerlin();
             Graph = new Graph(checkIsland, points, voronoi, (int)Width, (int)Height, _lakeThreshold);

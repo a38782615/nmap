@@ -20,11 +20,10 @@ namespace Assets.Map
         public Graph Graph { get; private set; }
         public Center SelectedCenter { get; private set; }
 
-        List<float2> f2l = new List<float2>();
         public Map1(bool needRelax = false)
         {
             List<uint> colors = new List<uint>();
-            var points = new List<Vector2>();
+            var points = new List<float2>();
 
             for (int i = 0; i < _pointCount; i++)
             {
@@ -39,12 +38,7 @@ namespace Assets.Map
                 for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
                     points = Graph.RelaxPoints(points, Width, Height).ToList();
             }
-            f2l.Clear();
-            foreach (var e in points)
-            {
-                f2l.Add(e);
-            }
-            var voronoi = new Voronoi(f2l, colors, new RectangleF(0, 0, Width, Height));
+            var voronoi = new Voronoi(points, colors, new RectangleF(0, 0, Width, Height));
 
             Graph = new Graph(points, voronoi, (int)Width, (int)Height, _lakeThreshold);
         }

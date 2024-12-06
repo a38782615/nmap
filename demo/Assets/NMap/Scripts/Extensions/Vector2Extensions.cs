@@ -1,7 +1,22 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.Mathematics;
 
+public static class float2Extensions
+{
+    public static float magnitude(this float2 self)
+    {
+        return (float) math.sqrt((double) self.x * (double) self.x + (double) self.y * (double) self.y);
+    }
+    
+    public static float2 Set(this  float2 self, float x, float y)
+    {
+        self.x = x;
+        self.y = y;
+        return self;
+    }
+}
 public static class Vector2Extensions
 {
     public static Vector2 Interpolate(Vector2 pt1, Vector2 pt2, float f)

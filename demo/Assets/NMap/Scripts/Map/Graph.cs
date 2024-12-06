@@ -12,7 +12,7 @@ namespace Assets.Map
     public class Graph
     {
         List<KeyValuePair<int, Corner>> _cornerMap = new List<KeyValuePair<int, Corner>>();
-        Func<Vector2, bool> inside;
+        Func<float2, bool> inside;
         bool _needsMoreRandomness;
 
         public int Width { get; private set; }
@@ -23,16 +23,16 @@ namespace Assets.Map
 
         private List<Corner> LandCorners { get { return corners.Where(p => !p.ocean && !p.coast).ToList(); } }
 
-        public Graph(IEnumerable<Vector2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+        public Graph(IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
         {
             Init(IslandShape.makePerlin(), points, voronoi, width, height, lakeThreshold);
         }
-        public Graph(Func<Vector2, bool> checkIsland, IEnumerable<Vector2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+        public Graph(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
         {
             Init(checkIsland, points, voronoi, width, height, lakeThreshold);
         }
 
-        void Init(Func<Vector2, bool> checkIsland, IEnumerable<Vector2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+        void Init(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
         {
             Width = width;
             Height = height;
@@ -67,7 +67,7 @@ namespace Assets.Map
             centers.ForEach(p => p.biome = GetBiome(p));
         }
 
-        private void BuildGraph(IEnumerable<Vector2> points, Delaunay.Voronoi voronoi)
+        private void BuildGraph(IEnumerable<float2> points, Delaunay.Voronoi voronoi)
         {
             // Build graph data structure in 'edges', 'centers', 'corners',
             // based on information in the Voronoi results: point.neighbors
@@ -669,19 +669,13 @@ namespace Assets.Map
             }
         }
 
-        static List<float2> f2l = new List<float2>();
-        public static IEnumerable<Vector2> RelaxPoints(IEnumerable<Vector2> startingPoints, float width, float height)
+        public static IEnumerable<float2> RelaxPoints(IEnumerable<float2> startingPoints, float width, float height)
         {
-            f2l.Clear();
-            foreach (var p in startingPoints)
-            {
-                f2l.Add(p);
-            }
-            Delaunay.Voronoi v = new Delaunay.Voronoi(f2l, null, new RectangleF(0, 0, width, height));
+            Delaunay.Voronoi v = new Delaunay.Voronoi(startingPoints.ToList(), null, new RectangleF(0, 0, width, height));
             foreach (var point in startingPoints)
             {
                 var region = v.Region(point);
-                point .Set(0,0);
+                point.Set(0,0);
                 foreach (var r in region)
                     point.Set(point.x + r.x, point.y + r.y);
 
