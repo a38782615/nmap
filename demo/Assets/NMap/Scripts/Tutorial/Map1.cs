@@ -3,9 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using Unity.Mathematics;
-using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Assets.Map
 {
@@ -20,8 +19,14 @@ namespace Assets.Map
         public Graph Graph { get; private set; }
         public Center SelectedCenter { get; private set; }
 
-        public Map1(bool needRelax = false)
+        private Random random;
+        public void SetSeed(uint seed)
         {
+            random = Random.CreateFromIndex(seed);
+        }
+        public Map1(uint seed, bool needRelax = false)
+        {
+            SetSeed(seed);
             List<uint> colors = new List<uint>();
             var points = new List<float2>();
 
@@ -29,8 +34,8 @@ namespace Assets.Map
             {
                 colors.Add(0);
                 points.Add(new float2(
-                        UnityEngine.Random.Range(0, Width),
-                        UnityEngine.Random.Range(0, Height))
+                    random.NextFloat(0, Width),
+                    random.NextFloat(0, Height))
                 );
             }
             if (needRelax)

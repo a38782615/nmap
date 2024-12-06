@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Unity.Mathematics;
-using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Assets.Map
 {
@@ -22,17 +22,23 @@ namespace Assets.Map
         public Map2()
         {
         }
-        public void Init(Func<float2, bool> checkIsland = null)
+        private Random random;
+        public void SetSeed(uint seed)
         {
+            random = Random.CreateFromIndex(seed);
+        }
+        public void Init(uint seed, Func<float2, bool> checkIsland = null)
+        {
+            SetSeed(seed);
             List<uint> colors = new List<uint>();
             var points = new List<float2>();
 
             for (int i = 0; i < _pointCount; i++)
             {
                 colors.Add(0);
-                points.Add(new Vector2(
-                        UnityEngine.Random.Range(0, Width),
-                        UnityEngine.Random.Range(0, Height))
+                points.Add(new float2(
+                    random.NextFloat(0, Width),
+                    random.NextFloat(0, Height))
                 );
             }
 

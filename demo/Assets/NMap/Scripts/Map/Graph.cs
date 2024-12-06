@@ -19,18 +19,24 @@ namespace Assets.Map
         public List<Corner> corners = new List<Corner>();
         public List<Edge> edges = new List<Edge>();
 
-        private List<Corner> LandCorners { get { return corners.Where(p => !p.ocean && !p.coast).ToList(); } }
+        private List<Corner> LandCorners
+        {
+            get { return corners.Where(p => !p.ocean && !p.coast).ToList(); }
+        }
 
         public Graph(IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
         {
             Init(IslandShape.makePerlin(), points, voronoi, width, height, lakeThreshold);
         }
-        public Graph(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+
+        public Graph(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height,
+            float lakeThreshold)
         {
             Init(checkIsland, points, voronoi, width, height, lakeThreshold);
         }
 
-        void Init(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+        void Init(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height,
+            float lakeThreshold)
         {
             Width = width;
             Height = height;
@@ -114,15 +120,32 @@ namespace Assets.Map
                     d1 = centerLookup[dedge.p1]
                 };
                 if (vedge.p0.HasValue && vedge.p1.HasValue)
+                {
                     edge.midpoint = float2Extensions.Interpolate(vedge.p0.Value, vedge.p1.Value, 0.5f);
+                }
 
                 edges.Add(edge);
 
                 // Centers point to edges. Corners point to edges.
-                if (edge.d0 != null) { edge.d0.borders.Add(edge); }
-                if (edge.d1 != null) { edge.d1.borders.Add(edge); }
-                if (edge.v0 != null) { edge.v0.protrudes.Add(edge); }
-                if (edge.v1 != null) { edge.v1.protrudes.Add(edge); }
+                if (edge.d0 != null)
+                {
+                    edge.d0.borders.Add(edge);
+                }
+
+                if (edge.d1 != null)
+                {
+                    edge.d1.borders.Add(edge);
+                }
+
+                if (edge.v0 != null)
+                {
+                    edge.v0.protrudes.Add(edge);
+                }
+
+                if (edge.v1 != null)
+                {
+                    edge.v1.protrudes.Add(edge);
+                }
 
                 // Centers point to centers.
                 if (edge.d0 != null && edge.d1 != null)
@@ -144,6 +167,7 @@ namespace Assets.Map
                     AddToCornerList(edge.d0.corners, edge.v0);
                     AddToCornerList(edge.d0.corners, edge.v1);
                 }
+
                 if (edge.d1 != null)
                 {
                     AddToCornerList(edge.d1.corners, edge.v0);
@@ -156,6 +180,7 @@ namespace Assets.Map
                     AddToCenterList(edge.v0.touches, edge.d0);
                     AddToCenterList(edge.v0.touches, edge.d1);
                 }
+
                 if (edge.v1 != null)
                 {
                     AddToCenterList(edge.v1.touches, edge.d0);
@@ -194,7 +219,8 @@ namespace Assets.Map
             Comparison<Corner> result =
                 (a, b) =>
                 {
-                    return (int)(((a.point.x - center.point.x) * (b.point.y - center.point.y) - (b.point.x - center.point.x) * (a.point.y - center.point.y)) * 1000);
+                    return (int)(((a.point.x - center.point.x) * (b.point.y - center.point.y) -
+                                  (b.point.x - center.point.x) * (a.point.y - center.point.y)) * 1000);
                 };
             return result;
         }
@@ -241,7 +267,10 @@ namespace Assets.Map
 
         private void AddToCenterList(List<Center> v, Center x)
         {
-            if (x != null && v.IndexOf(x) < 0) { v.Add(x); }
+            if (x != null && v.IndexOf(x) < 0)
+            {
+                v.Add(x);
+            }
         }
 
         private void AssignCornerElevations()
@@ -303,9 +332,11 @@ namespace Assets.Map
                             // nicer. I'm doing it here, with elevations, but I
                             // think there must be a better way. This hack is only
                             // used with square/hexagon grids.
-                            newElevation += UnityEngine.Random.value; ;
+                            newElevation += UnityEngine.Random.value;
+                            ;
                         }
                     }
+
                     // If this point changed, we'll add it to the queue so
                     // that we can process its neighbors too.
                     if (newElevation < s.elevation)
@@ -343,10 +374,11 @@ namespace Assets.Map
 
                     if (q.water)
                         numWater += 1;
-
                 }
+
                 p.water = (p.ocean || numWater >= p.corners.Count * lakeThreshold);
             }
+
             while (queue.Any())
             {
                 var p = queue.Dequeue();
@@ -372,6 +404,7 @@ namespace Assets.Map
                     numOcean += r.ocean ? 1 : 0;
                     numLand += !r.water ? 1 : 0;
                 }
+
                 p.coast = (numOcean > 0) && (numLand > 0);
             }
 
@@ -388,6 +421,7 @@ namespace Assets.Map
                     numOcean += p.ocean ? 1 : 0;
                     numLand += !p.water ? 1 : 0;
                 }
+
                 q.ocean = (numOcean == q.touches.Count);
                 q.coast = (numOcean > 0) && (numLand > 0);
                 q.water = q.border || ((numLand != q.touches.Count) && !q.coast);
@@ -420,7 +454,7 @@ namespace Assets.Map
                 //  *  x^2 - 2x + y = 0
                 // From this we can use the quadratic equation to get:
                 float x = math.sqrt(SCALE_FACTOR) - math.sqrt(SCALE_FACTOR * (1 - y));
-                if (x > 1.0) x = 1.0f;  // TODO: does this break downslopes?
+                if (x > 1.0) x = 1.0f; // TODO: does this break downslopes?
                 locations[i].elevation = x;
             }
 
@@ -438,6 +472,7 @@ namespace Assets.Map
                 {
                     sumElevation += q.elevation;
                 }
+
                 p.elevation = sumElevation / p.corners.Count;
             }
         }
@@ -458,6 +493,7 @@ namespace Assets.Map
                         r = s;
                     }
                 }
+
                 q.downslope = r;
             }
         }
@@ -479,6 +515,7 @@ namespace Assets.Map
                     q.watershed = q.downslope;
                 }
             }
+
             // Follow the downslope pointers to the coast. Limit to 100
             // iterations although most of the time with numPoints==2000 it
             // only takes 20 iterations because most points are not far from
@@ -496,8 +533,10 @@ namespace Assets.Map
                         changed = true;
                     }
                 }
+
                 if (!changed) break;
             }
+
             // How big is each watershed?
             foreach (var q in corners)
             {
@@ -521,10 +560,11 @@ namespace Assets.Map
                     {
                         break;
                     }
+
                     var edge = lookupEdgeFromCorner(q, q.downslope);
                     edge.river = edge.river + 1;
                     q.river++;
-                    q.downslope.river++;  // TODO: fix double count
+                    q.downslope.river++; // TODO: fix double count
                     q = q.downslope;
                 }
             }
@@ -550,6 +590,7 @@ namespace Assets.Map
                     q.moisture = 0;
                 }
             }
+
             while (queue.Any())
             {
                 var q = queue.Dequeue();
@@ -564,6 +605,7 @@ namespace Assets.Map
                     }
                 }
             }
+
             // Salt water
             foreach (var q in corners)
             {
@@ -586,6 +628,7 @@ namespace Assets.Map
                         q.moisture = 1.0f;
                     sumMoisture += q.moisture;
                 }
+
                 p.moisture = sumMoisture / p.corners.Count;
             }
         }
@@ -597,6 +640,7 @@ namespace Assets.Map
                 if (edge.d0 == r || edge.d1 == r)
                     return edge;
             }
+
             return null;
         }
 
@@ -607,6 +651,7 @@ namespace Assets.Map
                 if (edge.v0 == s || edge.v1 == s)
                     return edge;
             }
+
             return null;
         }
 
@@ -669,11 +714,12 @@ namespace Assets.Map
 
         public static IEnumerable<float2> RelaxPoints(IEnumerable<float2> startingPoints, float width, float height)
         {
-            Delaunay.Voronoi v = new Delaunay.Voronoi(startingPoints.ToList(), null, new RectangleF(0, 0, width, height));
+            Delaunay.Voronoi v =
+                new Delaunay.Voronoi(startingPoints.ToList(), null, new RectangleF(0, 0, width, height));
             foreach (var point in startingPoints)
             {
                 var region = v.Region(point);
-                point.Set(0,0);
+                point.Set(0, 0);
                 foreach (var r in region)
                     point.Set(point.x + r.x, point.y + r.y);
 

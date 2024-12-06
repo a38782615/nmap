@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using Unity.Mathematics;
 
 namespace Assets.Map
 {
@@ -8,7 +7,7 @@ namespace Assets.Map
         public int index;
         public Center d0, d1;  // Delaunay edge
         public Corner v0, v1;  // Voronoi edge
-        public Vector2 midpoint;  // halfway between v0,v1
+        public float2 midpoint;  // halfway between v0,v1
         public int river;  // volume of water, or 0
     }
 }

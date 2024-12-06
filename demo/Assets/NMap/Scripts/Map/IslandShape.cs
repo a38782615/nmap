@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Unity.Mathematics;
-using UnityEngine;
-using Random = UnityEngine.Random;
+﻿using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
 
 namespace Assets.Map
 {
@@ -17,28 +13,29 @@ namespace Assets.Map
 
         // The radial island radius is based on overlapping sine waves 
         public static float ISLAND_FACTOR = 1.07f;  // 1.0 means no small islands; 2.0 leads to a lot
-        public static System.Func<Vector2, bool> makeRadial()
+        public static System.Func<float2, bool> makeRadial()
         {
-            var bumps = Random.Range(1, 6);
-            var startAngle = Random.value * 2 * Mathf.PI;
-            var dipAngle = Random.value * 2 * Mathf.PI;
+            var r = Random.CreateFromIndex(1);
+            var bumps = r.NextInt(1, 6);
+            var startAngle = r.NextInt() * 2 * math.PI;
+            var dipAngle = r.NextInt() * 2 * math.PI;
 
-            var random = Random.value;
+            var random = r.NextInt();
             var start = 0.2f;
             var end = 0.7f;
 
             var dipWidth = (end - start) * random + start;
 
-            System.Func<Vector2, bool> inside = q =>
+            System.Func<float2, bool> inside = q =>
             {
-                var angle = Mathf.Atan2(q.y, q.x);
-                var length = 0.5 * (Mathf.Max(Mathf.Abs(q.x), Mathf.Abs(q.y)) + q.magnitude);
+                var angle = math.atan2(q.y, q.x);
+                var length = 0.5 * (math.max(math.abs(q.x), math.abs(q.y)) + q.magnitude());
 
-                var r1 = 0.5 + 0.40 * Mathf.Sin(startAngle + bumps * angle + Mathf.Cos((bumps + 3) * angle));
-                var r2 = 0.7 - 0.20 * Mathf.Sin(startAngle + bumps * angle - Mathf.Sin((bumps + 2) * angle));
-                if (Mathf.Abs(angle - dipAngle) < dipWidth
-                    || Mathf.Abs(angle - dipAngle + 2 * Mathf.PI) < dipWidth
-                    || Mathf.Abs(angle - dipAngle - 2 * Mathf.PI) < dipWidth)
+                var r1 = 0.5 + 0.40 * math.sin(startAngle + bumps * angle + math.cos((bumps + 3) * angle));
+                var r2 = 0.7 - 0.20 * math.sin(startAngle + bumps * angle - math.sin((bumps + 2) * angle));
+                if (math.abs(angle - dipAngle) < dipWidth
+                    || math.abs(angle - dipAngle + 2 * math.PI) < dipWidth
+                    || math.abs(angle - dipAngle - 2 * math.PI) < dipWidth)
                 {
                     r1 = r2 = 0.2;
                 }
@@ -52,12 +49,13 @@ namespace Assets.Map
         // The Perlin-based island combines perlin noise with the radius
         public static System.Func<float2, bool> makePerlin()
         {
-            var offset = Random.Range(0, 100000);
+            var r = Random.CreateFromIndex(1);
+            var offset = r.NextInt(0, 100000);
             System.Func<float2, bool> inside = q =>
             {
                 var x = q.x + offset;
                 var y = q.y + offset;
-                var perlin = Mathf.PerlinNoise(x/10 , y/10);
+                var perlin = Perlin.Noise(x/10 , y/10);
                 var checkValue = (0.3 + 0.3 * q.magnitude() * q.magnitude());
                 var result = perlin > .3;
                 return result;

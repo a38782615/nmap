@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace Assets.Map
 {
     public class Center
     {
         public int index;
-        public Vector2 point;   // location
+        public float2 point;   // location
         public bool water;      // lake or ocean
         public bool ocean;      // ocean
         public bool coast;      // land polygon touching an ocean

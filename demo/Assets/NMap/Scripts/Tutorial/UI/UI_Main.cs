@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class UI_Main : MonoBehaviour
 {
-    private int MapSeed = 1;
+    private uint MapSeed = 1;
     const int TextureScale = 20;
 	// Use this for initialization
     void Start()
@@ -17,7 +17,7 @@ public class UI_Main : MonoBehaviour
     void GenMap0()
     {
         Map map = new Map();
-        map.Init(1);
+        map.Init(MapSeed);
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);
@@ -27,21 +27,21 @@ public class UI_Main : MonoBehaviour
 
     private void GenMap1()
     {
-        Map1 map = new Map1();
+        Map1 map = new Map1(MapSeed);
 
         new MapTexture1(TextureScale).AttachTexture(GameObject.Find("Map"), map);
     }
 
     private void GenMap2()
     {
-        Map1 map = new Map1(true);
+        Map1 map = new Map1(MapSeed,true);
 
         new MapTexture1(TextureScale).AttachTexture(GameObject.Find("Map"), map);
     }
 
     private void GenMap3()
     {
-        Map1 map = new Map1(true);
+        Map1 map = new Map1(MapSeed,true);
 
         new MapTexture1(TextureScale).DrawTwoGraph(GameObject.Find("Map"), map);
     }
@@ -49,35 +49,35 @@ public class UI_Main : MonoBehaviour
     private void GenMap4()
     {
         Map2 map = new Map2();
-        map.Init();
+        map.Init(MapSeed);
         new MapTexture2(TextureScale).AttachTexture(GameObject.Find("Map"), map);
     }
 
     private void GenMap5()
     {
         Map2 map = new Map2();
-        map.Init();
+        map.Init(MapSeed);
         new MapTexture2(TextureScale).ShowElevation(GameObject.Find("Map"), map);
     }
 
 	void GenMap6()
 	{
         Map2 map = new Map2();
-        map.Init();
+        map.Init(MapSeed);
 		new MapTexture2(TextureScale).ShowRivers(GameObject.Find("Map"), map);
 	}
 	
 	void GenMap7()
 	{
         Map2 map = new Map2();
-        map.Init();
+        map.Init(MapSeed);
 		new MapTexture2(TextureScale).DrawMoisture(GameObject.Find("Map"), map);
 	}
 
     void GenMap8()
     {
         Map2 map = new Map2();
-        map.Init();
+        map.Init(MapSeed);
         new MapTexture2(TextureScale).DrawBiome(GameObject.Find("Map"), map);
     }
     #endregion
@@ -85,11 +85,10 @@ public class UI_Main : MonoBehaviour
     #region UI
     public void ResetSeed()
     {
-        MapSeed = (int)DateTime.Now.Ticks;
+        MapSeed = (uint)DateTime.Now.Ticks;
     }
     public void ClickGenMap(int index)
     {
-        Random.seed = MapSeed;
 		gameObject.SendMessage ("GenMap" + index);
     }
 
