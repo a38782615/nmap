@@ -59,7 +59,7 @@ public class UI_GenNameMap : MonoBehaviour
             Texture2D tex = (Texture2D)hit.collider.gameObject.GetComponent<Renderer>().material.mainTexture; // Get texture of object under mouse pointer
             if (tex)
             {
-                c = tex.GetPixelBilinear(hit.textureCoord2.x, hit.textureCoord2.y); // Get color from texture
+                c = tex.GetPixelBilinear(hit.textureCoord.x, hit.textureCoord.y); // Get color from texture
 
                 Biome b = ChangeColorToBiome(c);
                 _mouseBiome.text = BiomeProperties.Chinese[b];
@@ -126,6 +126,7 @@ public class UI_GenNameMap : MonoBehaviour
             _isLake = true;
     }
 
+    private uint MapSeed = 1;
     private void GenMap()
     {
         _txtTexture = GetTextTexture();
@@ -134,7 +135,7 @@ public class UI_GenNameMap : MonoBehaviour
         Map.Height = Height;
         Map map = new Map();
         map.SetPointNum(_pointNum);
-        map.Init(1, CheckIsland());
+        map.Init(MapSeed, CheckIsland());
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);

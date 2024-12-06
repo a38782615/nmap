@@ -41,14 +41,18 @@ namespace Assets.Map
             Width = width;
             Height = height;
             inside = checkIsland;
-
+            //通常来说，比较踏实的方案是先定义高度图，
+            //再将海岸线所在位置设定成海平面高度。
+            //这里我们没有采用这种办法，我们一开始就得到了这种方案想要生成的漂亮海岸线，
+            //可以从它来倒推计算高度图。
+            //我将海拔高度定义为与海岸线之间的距离。我本来希望用多边形的中心点来计算高度，但后来发现用顶角效果更好。顶角间的边可以视为山脊与峡谷。
+            //计算出顶角高度(Corner.elevation)后，
+            //求顶角高度平均值就能算出多边形的高度(Center.elevation)。参看函数
             BuildGraph(points, voronoi);
             AssignCornerElevations();
             AssignOceanCoastAndLand(lakeThreshold);
             RedistributeElevations();
-
             AssignPolygonElevations();
-
             // Determine downslope paths.
             CalculateDownslopes();
 

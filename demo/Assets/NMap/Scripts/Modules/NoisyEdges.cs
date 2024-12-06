@@ -35,10 +35,25 @@ public class NoisyEdges
                     float2 s = float2Extensions.Interpolate(edge.v1.point, edge.d1.point, f);
 
                     float minLength = 10 * SizeScale;
-                    if (edge.d0.biome != edge.d1.biome) minLength = 3 * SizeScale;
-                    if (edge.d0.ocean && edge.d1.ocean) minLength = 100 * SizeScale;
-                    if (edge.d0.coast || edge.d1.coast) minLength = 1 * SizeScale;
-                    if (edge.river > 0) minLength = 1 * SizeScale;
+                    if (edge.d0.biome != edge.d1.biome)
+                    {
+                        minLength = 3 * SizeScale;
+                    }
+
+                    if (edge.d0.ocean && edge.d1.ocean)
+                    {
+                        minLength = 100 * SizeScale;
+                    }
+
+                    if (edge.d0.coast || edge.d1.coast)
+                    {
+                        minLength = 1 * SizeScale;
+                    }
+
+                    if (edge.river > 0)
+                    {
+                        minLength = 1 * SizeScale;
+                    }
 
                     path0[edge.index] = buildNoisyLineSegments(edge.v0.point, t, edge.midpoint, q, minLength);
                     path1[edge.index] = buildNoisyLineSegments(edge.v1.point, s, edge.midpoint, r, minLength);

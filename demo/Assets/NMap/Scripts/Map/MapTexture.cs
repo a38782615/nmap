@@ -46,11 +46,15 @@ namespace Assets.Map
                 //绘制扰乱后的边缘
                 List<float2> edge0 = noisyEdge.path0[line.index];
                 for (int i = 0; i < edge0.Count - 1; i++)
+                {
                     DrawLine(texture, edge0[i].x, edge0[i].y, edge0[i + 1].x, edge0[i + 1].y, Color.blue);
+                }
 
                 List<float2> edge1 = noisyEdge.path1[line.index];
                 for (int i = 0; i < edge1.Count - 1; i++)
+                {
                     DrawLine(texture, edge1[i].x, edge1[i].y, edge1[i + 1].x, edge1[i + 1].y, Color.blue);
+                }
             }
 
             texture.Apply();
