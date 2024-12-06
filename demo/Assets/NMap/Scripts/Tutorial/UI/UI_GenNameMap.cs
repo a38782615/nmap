@@ -126,10 +126,8 @@ public class UI_GenNameMap : MonoBehaviour
             _isLake = true;
     }
 
-    private Random _random;
     private void GenMap()
     {
-        _random  = Random.CreateFromIndex(1);
         _txtTexture = GetTextTexture();
 
         Map.Width = Width;

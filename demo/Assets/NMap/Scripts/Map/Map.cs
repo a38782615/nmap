@@ -15,9 +15,10 @@ namespace Assets.Map
         public static float Width = 50;
         public static float Height = 50;
         const int NUM_LLOYD_RELAXATIONS = 2;
-        
+
         public Graph Graph { get; private set; }
         public Center SelectedCenter { get; private set; }
+        List<uint> colors = new List<uint>();
 
         public Map()
         {
@@ -29,17 +30,18 @@ namespace Assets.Map
         }
 
         private Random random;
+
+        List<float2> points = new List<float2>();
         public void SetSeed(uint seed)
         {
             random = Random.CreateFromIndex(seed);
         }
 
-        public void Init(uint seed,Func<float2, bool> checkIsland = null)
+        public void Init(uint seed, Func<float2, bool> checkIsland = null)
         {
+            points.Clear();
+            colors.Clear();
             SetSeed(seed);
-            
-            List<uint> colors = new List<uint>();
-            var points = new List<float2>();
 
             for (int i = 0; i < _pointCount; i++)
             {
@@ -51,12 +53,14 @@ namespace Assets.Map
             }
 
             for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
+            {
                 points = Graph.RelaxPoints(points, Width, Height).ToList();
+            }
 
             var voronoi = new Voronoi(points, colors, new RectangleF(0, 0, Width, Height));
 
             checkIsland = checkIsland ?? IslandShape.makePerlin();
-            Graph = new Graph(checkIsland,points, voronoi, (int)Width, (int)Height, _lakeThreshold);
+            Graph = new Graph(checkIsland, points, voronoi, (int)Width, (int)Height, _lakeThreshold);
         }
     }
 }

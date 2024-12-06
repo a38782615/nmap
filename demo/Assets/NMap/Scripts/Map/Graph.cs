@@ -3,9 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Assets.Map
 {
@@ -188,7 +186,7 @@ namespace Assets.Map
         private static void AddCorner(Center topLeft, int x, int y)
         {
             if (topLeft.point.x != x || topLeft.point.y != y)
-                topLeft.corners.Add(new Corner { ocean = true, point = new Vector2(x, y) });
+                topLeft.corners.Add(new Corner { ocean = true, point = new float2(x, y) });
         }
 
         private Comparison<Corner> ClockwiseComparison(Center center)
@@ -201,7 +199,7 @@ namespace Assets.Map
             return result;
         }
 
-        private Corner MakeCorner(Vector2? nullablePoint)
+        private Corner MakeCorner(float2? nullablePoint)
         {
             // The Voronoi library generates multiple Point objects for
             // corners, and we need to canonicalize to one Corner object.
@@ -421,7 +419,7 @@ namespace Assets.Map
                 //  *  y = 2x - x^2
                 //  *  x^2 - 2x + y = 0
                 // From this we can use the quadratic equation to get:
-                float x = Mathf.Sqrt(SCALE_FACTOR) - Mathf.Sqrt(SCALE_FACTOR * (1 - y));
+                float x = math.sqrt(SCALE_FACTOR) - math.sqrt(SCALE_FACTOR * (1 - y));
                 if (x > 1.0) x = 1.0f;  // TODO: does this break downslopes?
                 locations[i].elevation = x;
             }
@@ -544,7 +542,7 @@ namespace Assets.Map
             {
                 if ((q.water || q.river > 0) && !q.ocean)
                 {
-                    q.moisture = q.river > 0 ? Mathf.Min(3.0f, (0.2f * q.river)) : 1.0f;
+                    q.moisture = q.river > 0 ? math.min(3.0f, (0.2f * q.river)) : 1.0f;
                     queue.Enqueue(q);
                 }
                 else
