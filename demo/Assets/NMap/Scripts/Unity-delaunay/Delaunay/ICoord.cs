@@ -1,11 +1,12 @@
-using UnityEngine;
+
+using Unity.Mathematics;
 
 namespace Delaunay
 {
 	
 	public interface ICoord
 	{
-		Vector2 Coord {
+		float2 Coord {
 			get;
 		}
 	}

@@ -1,6 +1,4 @@
-using UnityEngine;
-using System.Collections.Generic;
-using Delaunay.Utils;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -117,11 +115,11 @@ namespace Delaunay
 		 * @return coordinates of the Halfedge's vertex in V*, the transformed Voronoi diagram
 		 * 
 		 */
-		public Vector2 Min ()
+		public float2 Min ()
 		{
 			AdjustMinBucket ();
 			Halfedge answer = _hash [_minBucket].nextInPriorityQueue;
-			return new Vector2 (answer.vertex.x, answer.ystar);
+			return new float2 (answer.vertex.x, answer.ystar);
 		}
 
 		/**

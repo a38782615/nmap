@@ -1,8 +1,9 @@
 ﻿using Delaunay;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
-using System.Text;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.Map
@@ -27,6 +28,7 @@ namespace Assets.Map
             _pointCount = num;
         }
 
+        List<float2> f2l = new List<float2>();
         public void Init(Func<Vector2, bool> checkIsland = null)
         {
             List<uint> colors = new List<uint>();
@@ -44,7 +46,12 @@ namespace Assets.Map
             for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
                 points = Graph.RelaxPoints(points, Width, Height).ToList();
 
-            var voronoi = new Voronoi(points, colors, new Rect(0, 0, Width, Height));
+            f2l.Clear();
+            foreach (var e in points)
+            {
+                f2l.Add(e);
+            }
+            var voronoi = new Voronoi(f2l, colors, new RectangleF(0, 0, Width, Height));
 
             checkIsland = checkIsland ?? IslandShape.makePerlin();
             Graph = new Graph(checkIsland,points, voronoi, (int)Width, (int)Height, _lakeThreshold);

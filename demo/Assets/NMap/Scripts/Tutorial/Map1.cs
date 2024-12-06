@@ -1,8 +1,10 @@
 ﻿using Delaunay;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.Map
@@ -18,6 +20,7 @@ namespace Assets.Map
         public Graph Graph { get; private set; }
         public Center SelectedCenter { get; private set; }
 
+        List<float2> f2l = new List<float2>();
         public Map1(bool needRelax = false)
         {
             List<uint> colors = new List<uint>();
@@ -26,19 +29,22 @@ namespace Assets.Map
             for (int i = 0; i < _pointCount; i++)
             {
                 colors.Add(0);
-                points.Add(new Vector2(
+                points.Add(new float2(
                         UnityEngine.Random.Range(0, Width),
                         UnityEngine.Random.Range(0, Height))
                 );
             }
-
             if (needRelax)
             {
                 for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
                     points = Graph.RelaxPoints(points, Width, Height).ToList();
             }
-
-            var voronoi = new Voronoi(points, colors, new Rect(0, 0, Width, Height));
+            f2l.Clear();
+            foreach (var e in points)
+            {
+                f2l.Add(e);
+            }
+            var voronoi = new Voronoi(f2l, colors, new RectangleF(0, 0, Width, Height));
 
             Graph = new Graph(points, voronoi, (int)Width, (int)Height, _lakeThreshold);
         }

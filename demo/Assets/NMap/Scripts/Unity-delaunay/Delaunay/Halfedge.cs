@@ -1,9 +1,7 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Delaunay.LR;
-using Delaunay.Geo;
-using Delaunay.Utils;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -82,7 +80,7 @@ namespace Delaunay
 			_pool.Push (this);
 		}
 
-		internal bool IsLeftOf (Vector2 p)
+		internal bool IsLeftOf (float2 p)
 		{
 			Site topSite;
 			bool rightOfSite, above, fast;

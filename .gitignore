@@ -40,3 +40,5 @@ demo/Assets/UnityVS/
 /export
 demo/.idea
 demo/Logs
+demo/UserSettings/Search.settings
+demo/ProjectSettings/SceneTemplateSettings.json

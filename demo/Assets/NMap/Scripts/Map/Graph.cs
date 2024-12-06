@@ -1,8 +1,10 @@
 ﻿using Delaunay;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.Map
@@ -77,7 +79,7 @@ namespace Assets.Map
             // point, and the Voronoi edge may be null.
             var libedges = voronoi.Edges();
 
-            var centerLookup = new Dictionary<Vector2?, Center>();
+            var centerLookup = new Dictionary<float2?, Center>();
 
             // Build Center objects for each of the points, and a lookup map
             // to find those Center objects again as we build the graph
@@ -667,13 +669,19 @@ namespace Assets.Map
             }
         }
 
+        static List<float2> f2l = new List<float2>();
         public static IEnumerable<Vector2> RelaxPoints(IEnumerable<Vector2> startingPoints, float width, float height)
         {
-            Delaunay.Voronoi v = new Delaunay.Voronoi(startingPoints.ToList(), null, new Rect(0, 0, width, height));
+            f2l.Clear();
+            foreach (var p in startingPoints)
+            {
+                f2l.Add(p);
+            }
+            Delaunay.Voronoi v = new Delaunay.Voronoi(f2l, null, new RectangleF(0, 0, width, height));
             foreach (var point in startingPoints)
             {
                 var region = v.Region(point);
-                point.Set(0, 0);
+                point .Set(0,0);
                 foreach (var r in region)
                     point.Set(point.x + r.x, point.y + r.y);
 

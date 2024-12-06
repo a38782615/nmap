@@ -12,27 +12,27 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Delaunay.Geo;
-using Delaunay.Utils;
 using Delaunay.LR;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
 	public sealed class Voronoi: Utils.IDisposable
 	{
 		private SiteList _sites;
-		private Dictionary <Vector2,Site> _sitesIndexedByLocation;
+		private Dictionary <float2,Site> _sitesIndexedByLocation;
 		private List<Triangle> _triangles;
 		private List<Edge> _edges;
 
 		
 		// TODO generalize this so it doesn't have to be a rectangle;
 		// then we can make the fractal voronois-within-voronois
-		private Rect _plotBounds;
-		public Rect plotBounds {
+		private RectangleF _plotBounds;
+		public RectangleF plotBounds {
 			get { return _plotBounds;}
 		}
 		
@@ -63,10 +63,10 @@ namespace Delaunay
 			_sitesIndexedByLocation = null;
 		}
 		
-		public Voronoi (List<Vector2> points, List<uint> colors, Rect plotBounds)
+		public Voronoi (List<float2> points, List<uint> colors, RectangleF plotBounds)
 		{
 			_sites = new SiteList ();
-			_sitesIndexedByLocation = new Dictionary <Vector2,Site> (); // XXX: Used to be Dictionary(true) -- weak refs. 
+			_sitesIndexedByLocation = new Dictionary <float2,Site> (); // XXX: Used to be Dictionary(true) -- weak refs. 
 			AddSites (points, colors);
 			_plotBounds = plotBounds;
 			_triangles = new List<Triangle> ();
@@ -74,7 +74,7 @@ namespace Delaunay
 			FortunesAlgorithm ();
 		}
 		
-		private void AddSites (List<Vector2> points, List<uint> colors)
+		private void AddSites (List<float2> points, List<uint> colors)
 		{
 			int length = points.Count;
 			for (int i = 0; i < length; ++i) {
@@ -82,7 +82,7 @@ namespace Delaunay
 			}
 		}
 		
-		private void AddSite (Vector2 p, uint color, int index)
+		private void AddSite (float2 p, uint color, int index)
 		{
 			if (_sitesIndexedByLocation.ContainsKey (p))
 				return; // Prevent duplicate site! (Adapted from https://github.com/nodename/as3delaunay/issues/1)
@@ -97,19 +97,19 @@ namespace Delaunay
 			return _edges;
 		}
           
-		public List<Vector2> Region (Vector2 p)
+		public List<float2> Region (float2 p)
 		{
 			Site site = _sitesIndexedByLocation [p];
 			if (site == null) {
-				return new List<Vector2> ();
+				return new List<float2> ();
 			}
 			return site.Region (_plotBounds);
 		}
 
 		// TODO: bug: if you call this before you call region(), something goes wrong :(
-		public List<Vector2> NeighborSitesForSite (Vector2 coord)
+		public List<float2> NeighborSitesForSite (float2 coord)
 		{
-			List<Vector2> points = new List<Vector2> ();
+			List<float2> points = new List<float2> ();
 			Site site = _sitesIndexedByLocation [coord];
 			if (site == null) {
 				return points;
@@ -128,12 +128,12 @@ namespace Delaunay
 			return _sites.Circles ();
 		}
 		
-		public List<LineSegment> VoronoiBoundaryForSite (Vector2 coord)
+		public List<LineSegment> VoronoiBoundaryForSite (float2 coord)
 		{
 			return DelaunayHelpers.VisibleLineSegments (DelaunayHelpers.SelectEdgesForSitePoint (coord, _edges));
 		}
 
-		public List<LineSegment> DelaunayLinesForSite (Vector2 coord)
+		public List<LineSegment> DelaunayLinesForSite (float2 coord)
 		{
 			return DelaunayHelpers.DelaunayLinesForEdges (DelaunayHelpers.SelectEdgesForSitePoint (coord, _edges));
 		}
@@ -160,11 +160,11 @@ namespace Delaunay
 			});
 		}
 
-		public List<Vector2> HullPointsInOrder ()
+		public List<float2> HullPointsInOrder ()
 		{
 			List<Edge> hullEdges = HullEdges ();
 			
-			List<Vector2> points = new List<Vector2> ();
+			List<float2> points = new List<float2> ();
 			if (hullEdges.Count == 0) {
 				return points;
 			}
@@ -192,7 +192,7 @@ namespace Delaunay
 			return DelaunayHelpers.Kruskal (segments, type);
 		}
 
-		public List<List<Vector2>> Regions ()
+		public List<List<float2>> Regions ()
 		{
 			return _sites.Regions (_plotBounds);
 		}
@@ -210,12 +210,12 @@ namespace Delaunay
 		 * @return coordinates of nearest Site to (x, y)
 		 * 
 		 */
-		public Nullable<Vector2> NearestSitePoint (/*BitmapData proximityMap,*/float x, float y)
+		public Nullable<float2> NearestSitePoint (/*BitmapData proximityMap,*/float x, float y)
 		{
 			return _sites.NearestSitePoint (/*proximityMap,*/x, y);
 		}
 		
-		public List<Vector2> SiteCoords ()
+		public List<float2> SiteCoords ()
 		{
 			return _sites.SiteCoords ();
 		}
@@ -225,16 +225,16 @@ namespace Delaunay
 		{
 			Site newSite, bottomSite, topSite, tempSite;
 			Vertex v, vertex;
-			Vector2 newintstar = Vector2.zero; //Because the compiler doesn't know that it will have a value - Julian
+			float2 newintstar = float2.zero; //Because the compiler doesn't know that it will have a value - Julian
 			Side leftRight;
 			Halfedge lbnd, rbnd, llbnd, rrbnd, bisector;
 			Edge edge;
 			
-			Rect dataBounds = _sites.GetSitesBounds ();
+			RectangleF dataBounds = _sites.GetSitesBounds ();
 			
-			int sqrt_nsites = (int)(Mathf.Sqrt (_sites.Count + 4));
-			HalfedgePriorityQueue heap = new HalfedgePriorityQueue (dataBounds.y, dataBounds.height, sqrt_nsites);
-			EdgeList edgeList = new EdgeList (dataBounds.x, dataBounds.width, sqrt_nsites);
+			int sqrt_nsites = (int)(math.sqrt (_sites.Count + 4));
+			HalfedgePriorityQueue heap = new HalfedgePriorityQueue (dataBounds.Y, dataBounds.Height, sqrt_nsites);
+			EdgeList edgeList = new EdgeList (dataBounds.X, dataBounds.Width, sqrt_nsites);
 			List<Halfedge> halfEdges = new List<Halfedge> ();
 			List<Vertex> vertices = new List<Vertex> ();
 			
@@ -400,7 +400,7 @@ namespace Delaunay
 			return 0;
 		}
 
-		public static int CompareByYThenX (Site s1, Vector2 s2)
+		public static int CompareByYThenX (Site s1, float2 s2)
 		{
 			if (s1.y < s2.y)
 				return -1;

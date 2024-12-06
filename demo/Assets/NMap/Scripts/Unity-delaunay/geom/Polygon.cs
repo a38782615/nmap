@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -7,16 +7,16 @@ namespace Delaunay
 	{
 		public sealed class Polygon
 		{
-			private List<Vector2> _vertices;
+			private List<float2> _vertices;
 
-			public Polygon (List<Vector2> vertices)
+			public Polygon (List<float2> vertices)
 			{
 				_vertices = vertices;
 			}
 
 			public float Area ()
 			{
-				return Mathf.Abs (SignedDoubleArea () * 0.5f); // XXX: I'm a bit nervous about this; not sure what the * 0.5 is for, bithacking?
+				return math.abs (SignedDoubleArea () * 0.5f); // XXX: I'm a bit nervous about this; not sure what the * 0.5 is for, bithacking?
 			}
 
 			public Winding Winding ()
@@ -35,7 +35,7 @@ namespace Delaunay
 			{
 				int index, nextIndex;
 				int n = _vertices.Count;
-				Vector2 point, next;
+				float2 point, next;
 				float signedDoubleArea = 0; // Losing lots of precision?
 				for (index = 0; index < n; ++index) {
 					nextIndex = (index + 1) % n;

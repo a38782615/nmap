@@ -1,5 +1,4 @@
-using UnityEngine;
-using Delaunay.Utils;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -93,7 +92,7 @@ namespace Delaunay
 		 * @return 
 		 * 
 		 */
-		public Halfedge EdgeListLeftNeighbor (Vector2 p)
+		public Halfedge EdgeListLeftNeighbor (float2 p)
 		{
 			int i, bucket;
 			Halfedge halfEdge;

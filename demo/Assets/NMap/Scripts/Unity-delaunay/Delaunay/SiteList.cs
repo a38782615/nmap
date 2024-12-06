@@ -1,8 +1,8 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Delaunay.Geo;
-using Delaunay.Utils;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -55,7 +55,7 @@ namespace Delaunay
 			}
 		}
 
-		internal Rect GetSitesBounds ()
+		internal RectangleF GetSitesBounds ()
 		{
 			if (_sorted == false) {
 				Site.SortSites (_sites);
@@ -64,7 +64,7 @@ namespace Delaunay
 			}
 			float xmin, xmax, ymin, ymax;
 			if (_sites.Count == 0) {
-				return new Rect (0, 0, 0, 0);
+				return new RectangleF (0, 0, 0, 0);
 			}
 			xmin = float.MaxValue;
 			xmax = float.MinValue;
@@ -81,7 +81,7 @@ namespace Delaunay
 			ymin = _sites [0].y;
 			ymax = _sites [_sites.Count - 1].y;
 			
-			return new Rect (xmin, ymin, xmax - xmin, ymax - ymin);
+			return new RectangleF (xmin, ymin, xmax - xmin, ymax - ymin);
 		}
 
 		public List<uint> SiteColors (/*BitmapData referenceImage = null*/)
@@ -95,9 +95,9 @@ namespace Delaunay
 			return colors;
 		}
 
-		public List<Vector2> SiteCoords ()
+		public List<float2> SiteCoords ()
 		{
-			List<Vector2> coords = new List<Vector2> ();
+			List<float2> coords = new List<float2> ();
 			Site site;
 			for (int i = 0; i<_sites.Count; i++) {
 				site = _sites [i];
@@ -129,9 +129,9 @@ namespace Delaunay
 			return circles;
 		}
 
-		public List<List<Vector2>> Regions (Rect plotBounds)
+		public List<List<float2>> Regions (RectangleF plotBounds)
 		{
-			List<List<Vector2>> regions = new List<List<Vector2>> ();
+			List<List<float2>> regions = new List<List<float2>> ();
 			Site site;
 			for (int i = 0; i< _sites.Count; i++) {
 				site = _sites [i];
@@ -148,7 +148,7 @@ namespace Delaunay
 		 * @return coordinates of nearest Site to (x, y)
 		 * 
 		 */
-		public Nullable<Vector2> NearestSitePoint (/*proximityMap:BitmapData,*/float x, float y)
+		public Nullable<float2> NearestSitePoint (/*proximityMap:BitmapData,*/float x, float y)
 		{
 //			uint index = proximityMap.getPixel(x, y);
 //			if (index > _sites.length - 1)

@@ -1,8 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using Delaunay;
-using Delaunay.Geo;
-using System.Linq;
 using Assets.Map;
 
 public class Main : MonoBehaviour
@@ -30,7 +26,6 @@ public class Main : MonoBehaviour
 
         GameObject.Find("Main MyCamera").GetComponentInChildren<MyCamera>().Map = _map;
 
-        //»≈¬“±ﬂ‘µ
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(_map);
 

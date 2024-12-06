@@ -1,8 +1,9 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Delaunay.Geo;
 using Delaunay.LR;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -175,7 +176,7 @@ namespace Delaunay
 			
 		public float SitesDistance ()
 		{
-			return Vector2.Distance (leftSite.Coord, rightSite.Coord);
+			return math.distance(leftSite.Coord, rightSite.Coord);
 		}
 			
 		public static int CompareSitesDistances_MAX (Edge edge0, Edge edge1)
@@ -198,8 +199,8 @@ namespace Delaunay
 			
 		// Once clipVertices() is called, this Dictionary will hold two Points
 		// representing the clipped coordinates of the left and right ends...
-		private Dictionary<Side,Nullable<Vector2>> _clippedVertices;
-		public Dictionary<Side,Nullable<Vector2>> clippedEnds {
+		private Dictionary<Side,Nullable<float2>> _clippedVertices;
+		public Dictionary<Side,Nullable<float2>> clippedEnds {
 			get { return _clippedVertices;}
 		}
 		// unless the entire Edge is outside the bounds.
@@ -276,12 +277,12 @@ namespace Delaunay
 			 * @param bounds
 			 * 
 			 */
-		public void ClipVertices (Rect bounds)
+		public void ClipVertices (RectangleF bounds)
 		{
-			float xmin = bounds.xMin;
-			float ymin = bounds.yMin;
-			float xmax = bounds.xMax;
-			float ymax = bounds.yMax;
+			float xmin = bounds.Left;
+			float ymin = bounds.Top;
+			float xmax = bounds.Right;
+			float ymax = bounds.Bottom;
 				
 			Vertex vertex0, vertex1;
 			float x0, x1, y0, y1;
@@ -373,13 +374,13 @@ namespace Delaunay
 			}
 
 			//			_clippedVertices = new Dictionary(true); // XXX: Weak ref'd dict might be a problem to use standard
-			_clippedVertices = new Dictionary<Side,Nullable<Vector2>> ();
+			_clippedVertices = new Dictionary<Side,Nullable<float2>> ();
 			if (vertex0 == _leftVertex) {
-				_clippedVertices [Side.LEFT] = new Vector2 (x0, y0);
-				_clippedVertices [Side.RIGHT] = new Vector2 (x1, y1);
+				_clippedVertices [Side.LEFT] = new float2 (x0, y0);
+				_clippedVertices [Side.RIGHT] = new float2 (x1, y1);
 			} else {
-				_clippedVertices [Side.RIGHT] = new Vector2 (x0, y0);
-				_clippedVertices [Side.LEFT] = new Vector2 (x1, y1);
+				_clippedVertices [Side.RIGHT] = new float2 (x0, y0);
+				_clippedVertices [Side.LEFT] = new float2 (x1, y1);
 			}
 		}
 

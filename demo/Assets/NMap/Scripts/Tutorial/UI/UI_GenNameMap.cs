@@ -16,23 +16,23 @@ public class UI_GenNameMap : MonoBehaviour
     private GameObject _showMap;
 	void Start ()
 	{
-        _inputName = transform.FindChild("inputName").GetComponent<InputField>();
-        _btnGen = transform.FindChild("btnGen").GetComponent<Button>();
-        _image = transform.FindChild("RawImage").GetComponent<RawImage>();
-        _mouseBiome = transform.FindChild("MouseBiome").GetComponent<Text>();
+        _inputName = transform.Find("inputName").GetComponent<InputField>();
+        _btnGen = transform.Find("btnGen").GetComponent<Button>();
+        _image = transform.Find("RawImage").GetComponent<RawImage>();
+        _mouseBiome = transform.Find("MouseBiome").GetComponent<Text>();
 	    _dFont = _inputName.textComponent.font;
 
         _btnGen.onClick.AddListener(GenMap);
 
 	    _showMap = GameObject.Find("Map");
 
-        transform.FindChild("Toggles1/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(Toggle1);
-        transform.FindChild("Toggles1/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(Toggle2);
-        transform.FindChild("Toggles1/Toggle3").GetComponent<Toggle>().onValueChanged.AddListener(Toggle3);
-        transform.FindChild("Toggles1/Toggle4").GetComponent<Toggle>().onValueChanged.AddListener(Toggle4);
+        transform.Find("Toggles1/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(Toggle1);
+        transform.Find("Toggles1/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(Toggle2);
+        transform.Find("Toggles1/Toggle3").GetComponent<Toggle>().onValueChanged.AddListener(Toggle3);
+        transform.Find("Toggles1/Toggle4").GetComponent<Toggle>().onValueChanged.AddListener(Toggle4);
 
-        transform.FindChild("Toggles2/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLand);
-        transform.FindChild("Toggles2/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLake);
+        transform.Find("Toggles2/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLand);
+        transform.Find("Toggles2/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLake);
 	}
 
     void Update()
@@ -171,10 +171,8 @@ public class UI_GenNameMap : MonoBehaviour
         myCamera.orthographic = true;
         myCamera.orthographicSize = 100;
         myCamera.targetTexture = renderTexture;
-        GUIText gText = tempObject.AddComponent<GUIText>();
+        Text gText = tempObject.AddComponent<Text>();
         gText.text = _inputName.text;
-        gText.anchor = TextAnchor.MiddleCenter;
-        gText.alignment = TextAlignment.Center;
         gText.font = _dFont;
         gText.fontSize = gText.text.Length <=3?125: 100;
 

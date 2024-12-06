@@ -1,8 +1,9 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Delaunay.Geo;
 using Delaunay.LR;
+using Unity.Mathematics;
 
 namespace Delaunay
 {
@@ -10,7 +11,7 @@ namespace Delaunay
 	public sealed class Site: ICoord, IComparable
 	{
 		private static Stack<Site> _pool = new Stack<Site> ();
-		public static Site Create (Vector2 p, uint index, float weight, uint color)
+		public static Site Create (float2 p, uint index, float weight, uint color)
 		{
 			if (_pool.Count > 0) {
 				return _pool.Pop ().Init (p, index, weight, color);
@@ -61,13 +62,13 @@ namespace Delaunay
 
 
 		private static readonly float EPSILON = .005f;
-		private static bool CloseEnough (Vector2 p0, Vector2 p1)
+		private static bool CloseEnough (float2 p0, float2 p1)
 		{
-			return Vector2.Distance (p0, p1) < EPSILON;
+			return math.distance(p0, p1) < EPSILON;
 		}
 				
-		private Vector2 _coord;
-		public Vector2 Coord {
+		private float2 _coord;
+		public float2 Coord {
 			get { return _coord;}
 		}
 		
@@ -84,9 +85,9 @@ namespace Delaunay
 		// which end of each edge hooks up with the previous edge in _edges:
 		private List<Side> _edgeOrientations;
 		// ordered list of points that define the region clipped to bounds:
-		private List<Vector2> _region;
+		private List<float2> _region;
 
-		private Site (Vector2 p, uint index, float weight, uint color)
+		private Site (float2 p, uint index, float weight, uint color)
 		{
 //			if (lock != PrivateConstructorEnforcer)
 //			{
@@ -95,7 +96,7 @@ namespace Delaunay
 			Init (p, index, weight, color);
 		}
 		
-		private Site Init (Vector2 p, uint index, float weight, uint color)
+		private Site Init (float2 p, uint index, float weight, uint color)
 		{
 			_coord = p;
 			_siteIndex = index;
@@ -111,7 +112,7 @@ namespace Delaunay
 			return "Site " + _siteIndex.ToString () + ": " + Coord.ToString ();
 		}
 		
-		private void Move (Vector2 p)
+		private void Move (float2 p)
 		{
 			Clear ();
 			_coord = p;
@@ -181,10 +182,10 @@ namespace Delaunay
 			return null;
 		}
 		
-		internal List<Vector2> Region (Rect clippingBounds)
+		internal List<float2> Region (RectangleF clippingBounds)
 		{
 			if (_edges == null || _edges.Count == 0) {
-				return new List<Vector2> ();
+				return new List<float2> ();
 			}
 			if (_edgeOrientations == null) { 
 				ReorderEdges ();
@@ -206,9 +207,9 @@ namespace Delaunay
 			reorderer.Dispose ();
 		}
 		
-		private List<Vector2> ClipToBounds (Rect bounds)
+		private List<float2> ClipToBounds (RectangleF bounds)
 		{
-			List<Vector2> points = new List<Vector2> ();
+			List<float2> points = new List<float2> ();
 			int n = _edges.Count;
 			int i = 0;
 			Edge edge;
@@ -218,19 +219,20 @@ namespace Delaunay
 			
 			if (i == n) {
 				// no edges visible
-				return new List<Vector2> ();
+				return new List<float2> ();
 			}
 			edge = _edges [i];
 			Side orientation = _edgeOrientations [i];
 
+			var error = "";
 			if (edge.clippedEnds [orientation] == null) {
-				Debug.LogError ("XXX: Null detected when there should be a Vector2!");
+				  error = ("XXX: Null detected when there should be a float2!");
 			}
 			if (edge.clippedEnds [SideHelper.Other (orientation)] == null) {
-				Debug.LogError ("XXX: Null detected when there should be a Vector2!");
+				  error = ("XXX: Null detected when there should be a float2!");
 			}
-			points.Add ((Vector2)edge.clippedEnds [orientation]);
-			points.Add ((Vector2)edge.clippedEnds [SideHelper.Other (orientation)]);
+			points.Add ((float2)edge.clippedEnds [orientation]);
+			points.Add ((float2)edge.clippedEnds [SideHelper.Other (orientation)]);
 			
 			for (int j = i + 1; j < n; ++j) {
 				edge = _edges [j];
@@ -245,16 +247,16 @@ namespace Delaunay
 			return points;
 		}
 		
-		private void Connect (List<Vector2> points, int j, Rect bounds, bool closingUp = false)
+		private void Connect (List<float2> points, int j, RectangleF bounds, bool closingUp = false)
 		{
-			Vector2 rightPoint = points [points.Count - 1];
+			float2 rightPoint = points [points.Count - 1];
 			Edge newEdge = _edges [j] as Edge;
 			Side newOrientation = _edgeOrientations [j];
 			// the point that  must be connected to rightPoint:
 			if (newEdge.clippedEnds [newOrientation] == null) {
-				Debug.LogError ("XXX: Null detected when there should be a Vector2!");
+				var error = ("XXX: Null detected when there should be a float2!");
 			}
-			Vector2 newPoint = (Vector2)newEdge.clippedEnds [newOrientation];
+			float2 newPoint = (float2)newEdge.clippedEnds [newOrientation];
 			if (!CloseEnough (rightPoint, newPoint)) {
 				// The points do not coincide, so they must have been clipped at the bounds;
 				// see if they are on the same border of the bounds:
@@ -269,72 +271,72 @@ namespace Delaunay
 					int newCheck = BoundsCheck.Check (newPoint, bounds);
 					float px, py;
 					if ((rightCheck & BoundsCheck.RIGHT) != 0) {
-						px = bounds.xMax;
+						px = bounds.Right;
 						if ((newCheck & BoundsCheck.BOTTOM) != 0) {
-							py = bounds.yMax;
-							points.Add (new Vector2 (px, py));
+							py = bounds.Bottom;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.TOP) != 0) {
-							py = bounds.yMin;
-							points.Add (new Vector2 (px, py));
+							py = bounds.Left;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.LEFT) != 0) {
-							if (rightPoint.y - bounds.y + newPoint.y - bounds.y < bounds.height) {
-								py = bounds.yMin;
+							if (rightPoint.y - bounds.Y + newPoint.y - bounds.Y < bounds.Height) {
+								py = bounds.Top;
 							} else {
-								py = bounds.yMax;
+								py = bounds.Bottom;
 							}
-							points.Add (new Vector2 (px, py));
-							points.Add (new Vector2 (bounds.xMin, py));
+							points.Add (new float2 (px, py));
+							points.Add (new float2 (bounds.Left, py));
 						}
 					} else if ((rightCheck & BoundsCheck.LEFT) != 0) {
-						px = bounds.xMin;
+						px = bounds.Left;
 						if ((newCheck & BoundsCheck.BOTTOM) != 0) {
-							py = bounds.yMax;
-							points.Add (new Vector2 (px, py));
+							py = bounds.Right;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.TOP) != 0) {
-							py = bounds.yMin;
-							points.Add (new Vector2 (px, py));
+							py = bounds.Left;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.RIGHT) != 0) {
-							if (rightPoint.y - bounds.y + newPoint.y - bounds.y < bounds.height) {
-								py = bounds.yMin;
+							if (rightPoint.y - bounds.Y + newPoint.y - bounds.Y < bounds.Height) {
+								py = bounds.Left;
 							} else {
-								py = bounds.yMax;
+								py = bounds.Right;
 							}
-							points.Add (new Vector2 (px, py));
-							points.Add (new Vector2 (bounds.xMax, py));
+							points.Add (new float2 (px, py));
+							points.Add (new float2 (bounds.Left, py));
 						}
 					} else if ((rightCheck & BoundsCheck.TOP) != 0) {
-						py = bounds.yMin;
+						py = bounds.Top;
 						if ((newCheck & BoundsCheck.RIGHT) != 0) {
-							px = bounds.xMax;
-							points.Add (new Vector2 (px, py));
+							px = bounds.Right;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.LEFT) != 0) {
-							px = bounds.xMin;
-							points.Add (new Vector2 (px, py));
+							px = bounds.Left;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.BOTTOM) != 0) {
-							if (rightPoint.x - bounds.x + newPoint.x - bounds.x < bounds.width) {
-								px = bounds.xMin;
+							if (rightPoint.x - bounds.X + newPoint.x - bounds.X < bounds.Width) {
+								px = bounds.Left;
 							} else {
-								px = bounds.xMax;
+								px = bounds.Right;
 							}
-							points.Add (new Vector2 (px, py));
-							points.Add (new Vector2 (px, bounds.yMax));
+							points.Add (new float2 (px, py));
+							points.Add (new float2 (px, bounds.Bottom));
 						}
 					} else if ((rightCheck & BoundsCheck.BOTTOM) != 0) {
-						py = bounds.yMax;
+						py = bounds.Bottom;
 						if ((newCheck & BoundsCheck.RIGHT) != 0) {
-							px = bounds.xMax;
-							points.Add (new Vector2 (px, py));
+							px = bounds.Right;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.LEFT) != 0) {
-							px = bounds.xMin;
-							points.Add (new Vector2 (px, py));
+							px = bounds.Left;
+							points.Add (new float2 (px, py));
 						} else if ((newCheck & BoundsCheck.TOP) != 0) {
-							if (rightPoint.x - bounds.x + newPoint.x - bounds.x < bounds.width) {
-								px = bounds.xMin;
+							if (rightPoint.x - bounds.X + newPoint.x - bounds.X < bounds.Width) {
+								px = bounds.Left;
 							} else {
-								px = bounds.xMax;
+								px = bounds.Right;
 							}
-							points.Add (new Vector2 (px, py));
-							points.Add (new Vector2 (px, bounds.yMin));
+							points.Add (new float2 (px, py));
+							points.Add (new float2 (px, bounds.Top));
 						}
 					}
 				}
@@ -345,9 +347,9 @@ namespace Delaunay
 				points.Add (newPoint);
 			}
 			if (newEdge.clippedEnds [SideHelper.Other (newOrientation)] == null) {
-				Debug.LogError ("XXX: Null detected when there should be a Vector2!");
+				var error= ("XXX: Null detected when there should be a float2!");
 			}
-			Vector2 newRightPoint = (Vector2)newEdge.clippedEnds [SideHelper.Other (newOrientation)];
+			float2 newRightPoint = (float2)newEdge.clippedEnds [SideHelper.Other (newOrientation)];
 			if (!CloseEnough (points [0], newRightPoint)) {
 				points.Add (newRightPoint);
 			}
@@ -362,7 +364,7 @@ namespace Delaunay
 		
 		public float Dist (ICoord p)
 		{
-			return Vector2.Distance (p.Coord, this._coord);
+			return math.distance(p.Coord, this._coord);
 		}
 
 	}
@@ -387,19 +389,19 @@ static class BoundsCheck
 		 * @return an int with the appropriate bits set if the Point lies on the corresponding bounds lines
 		 * 
 		 */
-	public static int Check (Vector2 point, Rect bounds)
+	public static int Check (float2 point, RectangleF bounds)
 	{
 		int value = 0;
-		if (point.x == bounds.xMin) {
+		if (point.x.Equals(bounds.Left)) {
 			value |= LEFT;
 		}
-		if (point.x == bounds.xMax) {
+		if (point.x.Equals(bounds.Right)) {
 			value |= RIGHT;
 		}
-		if (point.y == bounds.yMin) {
+		if (point.y.Equals(bounds.Top)) {
 			value |= TOP;
 		}
-		if (point.y == bounds.yMax) {
+		if (point.y.Equals(bounds.Bottom)) {
 			value |= BOTTOM;
 		}
 		return value;

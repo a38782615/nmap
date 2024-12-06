@@ -1,5 +1,4 @@
 using Delaunay.LR;
-using Delaunay.Utils;
 using System.Collections.Generic;
 
 namespace Delaunay

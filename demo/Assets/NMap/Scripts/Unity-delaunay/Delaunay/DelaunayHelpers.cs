@@ -1,8 +1,8 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Delaunay.Geo;
 using Delaunay.LR;
+using Unity.Mathematics;
 
 namespace Delaunay
 {	
@@ -30,8 +30,8 @@ namespace Delaunay
 			for (int i = 0; i<edges.Count; i++) {
 				Edge edge = edges [i];
 				if (edge.visible) {
-					Nullable<Vector2> p1 = edge.clippedEnds [Side.LEFT];
-					Nullable<Vector2> p2 = edge.clippedEnds [Side.RIGHT];
+					Nullable<float2> p1 = edge.clippedEnds [Side.LEFT];
+					Nullable<float2> p2 = edge.clippedEnds [Side.RIGHT];
 					segments.Add (new LineSegment (p1, p2));
 				}
 			}
@@ -39,11 +39,11 @@ namespace Delaunay
 			return segments;
 		}
 
-		public static List<Edge> SelectEdgesForSitePoint (Vector2 coord, List<Edge> edgesToTest)
+		public static List<Edge> SelectEdgesForSitePoint (float2 coord, List<Edge> edgesToTest)
 		{
 			return edgesToTest.FindAll (delegate (Edge edge) {
-				return ((edge.leftSite != null && edge.leftSite.Coord == coord)
-					|| (edge.rightSite != null && edge.rightSite.Coord == coord));
+				return ((edge.leftSite != null && edge.leftSite.Coord.Equals(coord))
+					|| (edge.rightSite != null && edge.rightSite.Coord.Equals(coord)));
 			});
 		}
 
@@ -84,7 +84,7 @@ namespace Delaunay
 		*/
 		public static List<LineSegment> Kruskal (List<LineSegment> lineSegments, KruskalType type = KruskalType.MINIMUM)
 		{
-			Dictionary<Nullable<Vector2>,Node> nodes = new Dictionary<Nullable<Vector2>,Node> ();
+			Dictionary<Nullable<float2>,Node> nodes = new Dictionary<Nullable<float2>,Node> ();
 			List<LineSegment> mst = new List<LineSegment> ();
 			Stack<Node> nodePool = Node.pool;
 			
