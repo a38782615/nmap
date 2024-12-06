@@ -2,18 +2,16 @@
 // Author: amitp@cs.stanford.edu
 // License: MIT
 
-using System;
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using Assets.Map;
+using Unity.Mathematics;
 using Random = UnityEngine.Random;
 
 public class NoisyEdges
 {
     private static readonly float NOISY_LINE_TRADEOFF = 0.5f;// low: jagged vedge; high: jagged dedge
-    public Dictionary<int, List<Vector2>> path0 = new Dictionary<int, List<Vector2>>();// edge index -> Vector.<Point>
-    public Dictionary<int, List<Vector2>> path1 = new Dictionary<int, List<Vector2>>();// edge index -> Vector.<Point>
+    public Dictionary<int, List<float2>> path0 = new Dictionary<int, List<float2>>();// edge index -> Vector.<Point>
+    public Dictionary<int, List<float2>> path1 = new Dictionary<int, List<float2>>();// edge index -> Vector.<Point>
 
     private const float SizeScale = 0.1f;
     // Build noisy line paths for each of the Voronoi edges. There are
@@ -31,10 +29,10 @@ public class NoisyEdges
                     && !path0.ContainsKey(edge.index))
                 {
                     float f = NOISY_LINE_TRADEOFF;
-                    Vector2 t = Vector2Extensions.Interpolate(edge.v0.point, edge.d0.point, f);
-                    Vector2 q = Vector2Extensions.Interpolate(edge.v0.point, edge.d1.point, f);
-                    Vector2 r = Vector2Extensions.Interpolate(edge.v1.point, edge.d0.point, f);
-                    Vector2 s = Vector2Extensions.Interpolate(edge.v1.point, edge.d1.point, f);
+                    float2 t = float2Extensions.Interpolate(edge.v0.point, edge.d0.point, f);
+                    float2 q = float2Extensions.Interpolate(edge.v0.point, edge.d1.point, f);
+                    float2 r = float2Extensions.Interpolate(edge.v1.point, edge.d0.point, f);
+                    float2 s = float2Extensions.Interpolate(edge.v1.point, edge.d1.point, f);
 
                     float minLength = 10 * SizeScale;
                     if (edge.d0.biome != edge.d1.biome) minLength = 3 * SizeScale;
@@ -51,9 +49,9 @@ public class NoisyEdges
 
     // Helper function: build a single noisy line in a quadrilateral A-B-C-D,
     // and store the output points in a Vector.
-    private List<Vector2> buildNoisyLineSegments(Vector2 A, Vector2 B, Vector2 C, Vector2 D, float minLength)
+    private List<float2> buildNoisyLineSegments(float2 A, float2 B, float2 C, float2 D, float minLength)
     {
-        List<Vector2> points = new List<Vector2>();
+        List<float2> points = new List<float2>();
         
         points.Add(A);
         subdivide(A, B, C, D,points,minLength);
@@ -62,9 +60,9 @@ public class NoisyEdges
         return points;
     }
 
-    private void subdivide(Vector2 A, Vector2 B, Vector2 C, Vector2 D, List<Vector2> points, float minLength)
+    private void subdivide(float2 A, float2 B, float2 C, float2 D, List<float2> points, float minLength)
     {
-        if (Vector2.Distance(A,C) < minLength || Vector2.Distance(B,D)<minLength)
+        if (math.distance(A,C) < minLength || math.distance(B,D)<minLength)
             return;
 
         // Subdivide the quadrilateral
@@ -72,22 +70,22 @@ public class NoisyEdges
         float q = Random.Range(0.2f, 0.8f);// horizontal (along A-B and D-C)
 
         // Midpoints
-        Vector2 E = Vector2Extensions.Interpolate(A, D, p);
-        Vector2 F = Vector2Extensions.Interpolate(B, C, p);
-        Vector2 G = Vector2Extensions.Interpolate(A, B, q);
-        Vector2 I = Vector2Extensions.Interpolate(D, C, q);
+        float2 E = float2Extensions.Interpolate(A, D, p);
+        float2 F = float2Extensions.Interpolate(B, C, p);
+        float2 G = float2Extensions.Interpolate(A, B, q);
+        float2 I = float2Extensions.Interpolate(D, C, q);
 
         // Central point
-        Vector2 H = Vector2Extensions.Interpolate(E, F, q);
+        float2 H = float2Extensions.Interpolate(E, F, q);
 
         // Divide the quad into subquads, but meet at H
         float s = 1 - Random.Range(-0.4f, 0.4f);
         float t = 1 - Random.Range(-0.4f, 0.4f);
 
-        subdivide(A, Vector2Extensions.Interpolate(G, B, s), H, Vector2Extensions.Interpolate(E, D, t), points,
+        subdivide(A, float2Extensions.Interpolate(G, B, s), H, float2Extensions.Interpolate(E, D, t), points,
             minLength);
         points.Add(H);
-        subdivide(H, Vector2Extensions.Interpolate(F, C, s), C, Vector2Extensions.Interpolate(I, D, t), points,
+        subdivide(H, float2Extensions.Interpolate(F, C, s), C, float2Extensions.Interpolate(I, D, t), points,
             minLength);
     }
 }

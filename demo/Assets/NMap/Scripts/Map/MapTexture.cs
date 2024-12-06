@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.Map
@@ -43,11 +44,11 @@ namespace Assets.Map
             foreach (var line in map.Graph.edges.Where(p => p.river > 0 && !p.d0.water && !p.d1.water))
             {
                 //绘制扰乱后的边缘
-                List<Vector2> edge0 = noisyEdge.path0[line.index];
+                List<float2> edge0 = noisyEdge.path0[line.index];
                 for (int i = 0; i < edge0.Count - 1; i++)
                     DrawLine(texture, edge0[i].x, edge0[i].y, edge0[i + 1].x, edge0[i + 1].y, Color.blue);
 
-                List<Vector2> edge1 = noisyEdge.path1[line.index];
+                List<float2> edge1 = noisyEdge.path1[line.index];
                 for (int i = 0; i < edge1.Count - 1; i++)
                     DrawLine(texture, edge1[i].x, edge1[i].y, edge1[i + 1].x, edge1[i + 1].y, Color.blue);
             }
@@ -63,14 +64,14 @@ namespace Assets.Map
             plane.GetComponent<Renderer>().material.mainTexture = texture;
         }
 
-        readonly List<Vector2> _edgePoints = new List<Vector2>();
-        private void DrawNoisyPolygon(Texture2D texture, Center p, List<Vector2> orgEdges)
+        readonly List<float2> _edgePoints = new List<float2>();
+        private void DrawNoisyPolygon(Texture2D texture, Center p, List<float2> orgEdges)
         {
             _edgePoints.Clear();
             _edgePoints.AddRange(orgEdges);
             _edgePoints.Add(p.point);
             texture.FillPolygon(
-                _edgePoints.Select(x => new Vector2(x.x * _textureScale, x.y * _textureScale)).ToArray(),
+                _edgePoints.Select(x => new float2(x.x * _textureScale, x.y * _textureScale)).ToArray(),
                 BiomeProperties.Colors[p.biome]);
         }
 

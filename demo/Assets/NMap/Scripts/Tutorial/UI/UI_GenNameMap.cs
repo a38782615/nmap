@@ -3,7 +3,7 @@ using UnityEngine;
 using Assets.Map;
 using Unity.Mathematics;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
+using Random = Unity.Mathematics.Random;
 
 public class UI_GenNameMap : MonoBehaviour
 {
@@ -126,16 +126,17 @@ public class UI_GenNameMap : MonoBehaviour
             _isLake = true;
     }
 
+    private Random _random;
     private void GenMap()
     {
-        Random.seed = 1;
+        _random  = Random.CreateFromIndex(1);
         _txtTexture = GetTextTexture();
 
         Map.Width = Width;
         Map.Height = Height;
         Map map = new Map();
         map.SetPointNum(_pointNum);
-        map.Init(CheckIsland());
+        map.Init(1, CheckIsland());
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);

@@ -17,7 +17,7 @@ public class UI_Main : MonoBehaviour
     void GenMap0()
     {
         Map map = new Map();
-        map.Init();
+        map.Init(1);
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);

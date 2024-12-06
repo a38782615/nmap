@@ -116,7 +116,7 @@ namespace Assets.Map
                     d1 = centerLookup[dedge.p1]
                 };
                 if (vedge.p0.HasValue && vedge.p1.HasValue)
-                    edge.midpoint = Vector2Extensions.Interpolate(vedge.p0.Value, vedge.p1.Value, 0.5f);
+                    edge.midpoint = float2Extensions.Interpolate(vedge.p0.Value, vedge.p1.Value, 0.5f);
 
                 edges.Add(edge);
 

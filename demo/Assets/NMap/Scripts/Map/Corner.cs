@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace Assets.Map
 {
@@ -7,7 +7,7 @@ namespace Assets.Map
     {
         public int index;
 
-        public Vector2 point;  // location
+        public float2 point;  // location
         public bool ocean;  // ocean
         public bool water;  // lake or ocean
         public bool coast;  // touches ocean and land polygons
