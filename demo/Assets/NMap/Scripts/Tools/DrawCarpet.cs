@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ namespace ET
 {
     public partial class DrawCarpet
     {
-        public string[] mainNames = { "noise_rocky", "forest_ground_noise" };
-        public string[] overNames = { "blocky", "grass" };
+        public string[] mainNames = { "noise_rocky", "Ground_noise_water_shallow","forest_ground_noise" };
+        public string[] overNames = { "blocky","water", "grass" };
         
         public MeshRenderer m_meshRenderer;
         public MeshFilter meshFilter;
@@ -46,8 +47,10 @@ namespace ET
             set { m_meshRenderer.sortingLayerName = value; }
         }
 
+        public int CarType;
         public void Init(int type)
         {
+            CarType = type;
             mainTexture = Resources.Load<Texture2D>("Sprites/"+mainNames[type]);
             overlayTexture = Resources.Load<Texture2D>("Sprites/"+overNames[type]);
             meshFilter = View.GetComponent<MeshFilter>();
@@ -115,9 +118,12 @@ namespace ET
             m_mapLogic.Map.Clear();
         }
 
-        public void Set(int2 pos, MapNode node)
+        public void Set(Func<DrawCarpet,MapNode,bool> func, MapNode node)
         {
-            m_mapLogic.Map[pos] = node;
+            if (func.Invoke(this,node))
+            {
+                m_mapLogic.Map[node.Pos] = node;
+            }
         }
     }
 }

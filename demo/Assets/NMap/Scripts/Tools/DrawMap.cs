@@ -8,8 +8,7 @@ namespace ET
     public partial class DrawMap
     {
         public GameObject View;
-        DrawCarpet ground;
-        DrawCarpet grass;
+        private List<DrawCarpet> grounds;
 
         public DrawMap(GameObject go)
         {
@@ -18,10 +17,14 @@ namespace ET
 
         public void Init()
         {
-            ground = new DrawCarpet(View.transform.GetChild(0).gameObject);
-            ground.Init(0);
-            grass = new DrawCarpet(View.transform.GetChild(1).gameObject);
-            grass.Init(1);
+            var c = View.transform.childCount;
+            grounds = new List<DrawCarpet>(c);
+            for (int i = 0; i < c; i++)
+            {
+                var g  = new DrawCarpet(View.transform.GetChild(i).gameObject);
+                grounds.Add(g);
+                g.Init(i);
+            }
         }
 
         KDTree kdTree;
@@ -32,11 +35,11 @@ namespace ET
 
         public void GenMap(Map m)
         {
-            m_map.Clear();
-            ground.Clear();
-            grass.Clear();
-
-            centerIdxs.Clear();
+            var self = this;
+            grounds.ForEach((e) =>
+            {
+                e.Clear();
+            });
             kdTree = new KDTree();
             query = new KDQuery();
             var centers = m.Graph.centers;
@@ -58,25 +61,55 @@ namespace ET
                         var n = m_queryResult[0];
                         var center = centers[n];
                         var pos = new int2(i, j);
-                        m_map[pos] = new MapNode()
+                        var node = new MapNode()
                         {
                             Center = center,
                             Pos = pos
                         };
-                        if (center.moisture > 0.5f)
+                        m_map[pos] = node;
+                        grounds.ForEach((e) =>
                         {
-                            grass.Set(pos, m_map[pos]);
-                        }
-                        else
-                        {
-                            ground.Set(pos, m_map[pos]);
-                        }
+                            e.Set(self.IsGround, node);
+                        });
                     }
                 }
             }
             
-            grass.GenMap();
-            ground.GenMap();
+            grounds.ForEach((e) =>
+            {
+                e.GenMap();
+            });
+        }
+
+        public bool IsGround(DrawCarpet carpet,MapNode node)
+        {
+            bool b = false;
+            if (carpet.CarType == 0)
+            {
+                b = true;
+            }
+            else if (carpet.CarType == 1)
+            {
+                b = IsWater(node);
+            }
+            else if (carpet.CarType == 2)
+            {
+                b = IsGrass(node);
+            }
+
+            return b;
+        }
+
+        public bool IsWater(MapNode node)
+        {
+            var b = node.Center.biome == Biome.Ocean || node.Center.biome == Biome.Lake || node.Center.biome == Biome.TropicalRainForest || node.Center.biome == Biome.Ice;
+            return b;
+        }
+
+        public bool IsGrass(MapNode node)
+        {
+            var b = node.Center.biome == Biome.Grassland;
+            return b;
         }
     }
 }
