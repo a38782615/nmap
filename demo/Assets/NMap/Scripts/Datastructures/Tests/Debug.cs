@@ -23,25 +23,38 @@ SOFTWARE.
 
 #define KDTREE_VISUAL_DEBUG
 
-using System.Collections.Generic;
-using UnityEngine;
-using System;
 
-namespace DataStructures.ViliWonka.KDTree {
+using UnityEngine; 
+namespace ET
+{
+    public partial struct KDBounds
+    {
 
-    public partial class KDQuery {
-
+// returns unity bounds
+        public Bounds Bounds
+        {
+            get
+            {
+                return new Bounds(
+                    (min + max) / 2,
+                    (max - min)
+                );
+            }
+        }
+    }
+    public partial class KDQuery
+    {
         // uses gizmos
-        public void DrawLastQuery() {
-
+        public void DrawLastQuery()
+        {
             Color start = Color.red;
-            Color end   = Color.green;
+            Color end = Color.green;
 
             start.a = 0.25f;
             end.a = 0.25f;
 
-            for(int i = 0; i < queryIndex; i++) {
-
+            for (int i = 0; i < queryIndex; i++)
+            {
                 float val = i / (float)queryIndex;
 
                 Gizmos.color = Color.Lerp(end, start, val);
@@ -52,5 +65,4 @@ namespace DataStructures.ViliWonka.KDTree {
             }
         }
     }
-
 }

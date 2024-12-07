@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Assets.Map;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -122,12 +123,13 @@ namespace ET
 
             return ps;
         }
-
-        public float size = 10;
-        public uint seed = 10;
-        public int NumberOfVertices = 1000;
-
-        private Dictionary<int2, MapNode> GenMap()
+        
+        KDTree kdTree;
+        KDQuery query;
+        private List<float3> centerIdxs = new List<float3>();
+        Dictionary<int2, MapNode> m_map = new Dictionary<int2, MapNode>();
+        private List<int> m_queryResult = new List<int>();
+        public void GenMap(Map m)
         {
             // var n = new MapNode()
             // {
@@ -135,8 +137,41 @@ namespace ET
             //     Pos = new int2(i, j)
             // };
             // map[n.Pos] = n;
-            var map = new Dictionary<int2, MapNode>();
-            return map;
+            m_map.Clear();
+            centerIdxs.Clear();
+            var centers = m.Graph.centers;
+            foreach (var c in centers)
+            {
+                centerIdxs.Add(new float3(c.point,0));
+            }
+            kdTree = new KDTree(centerIdxs.ToArray());
+            query = new KDQuery();
+            for (int i = 0; i < m.Graph.Width; i++)
+            {
+                for (int j = 0; j < m.Graph.Height; j++)
+                {
+                    var p = new float3(i, j, 0);
+                    m_queryResult.Clear();
+                    query.KNearest(kdTree,p,1,m_queryResult);
+                    if (m_queryResult.Count > 0)
+                    {
+                        var n = m_queryResult[0];
+                        var center = centers[n];
+                        if (center.biome == Biome.Grassland)
+                        {
+                            var pos = new int2(i, j);
+                            m_map[pos] = new MapNode()
+                            {
+                                NodeType = this.mapNodeType,
+                                Pos = pos
+                            };
+                        }
+                    }
+                }
+            }
+            CreateMesh();
+            m_mapLogic.CreateMap(m_map);
+            Render();
         }
 
         public void UpdateNode(int x, int y)
@@ -148,13 +183,6 @@ namespace ET
                 Pos = pos
             };
         }
-
-        private void OnValidate()
-        {
-            CreateMesh();
-            var map = GenMap();
-            m_mapLogic.CreateMap(map);
-            Render();
-        }
+ 
     }
 }

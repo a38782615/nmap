@@ -23,48 +23,47 @@ SOFTWARE.
 
 using System.Collections.Generic;
 
-namespace DataStructures.ViliWonka.Heap {
-
-    public class KSmallestHeap : BaseHeap {
-
-        public KSmallestHeap(int maxEntries) : base(maxEntries) {
-
+namespace ET
+{
+    public class KSmallestHeap : BaseHeap
+    {
+        public KSmallestHeap(int maxEntries) : base(maxEntries)
+        {
         }
 
-        public bool Full {
-            get {
-                return maxSize == nodesCount;
-            }
+        public bool Full
+        {
+            get { return maxSize == nodesCount; }
         }
 
         // in lots of cases, max head gets removed
-        public override void PushValue(float h) {
-
+        public override void PushValue(float h)
+        {
             // if heap full
-            if(nodesCount == maxSize) {
-
+            if (nodesCount == maxSize)
+            {
                 // if Heads priority is smaller than input priority, then ignore that item
-                if(HeadValue < h) {
-
+                if (HeadValue < h)
+                {
                     return;
                 }
-                else {
-
-                    heap[1] = h;   // remove top element
+                else
+                {
+                    heap[1] = h; // remove top element
                     BubbleDownMax(1); // bubble it down
                 }
             }
-            else {
-
+            else
+            {
                 nodesCount++;
                 heap[nodesCount] = h;
                 BubbleUpMax(nodesCount);
             }
         }
 
-        public override float PopValue() {
-
-            if(nodesCount == 0)
+        public override float PopValue()
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             float result = heap[1];
@@ -76,14 +75,14 @@ namespace DataStructures.ViliWonka.Heap {
             return result;
         }
 
-        public void Print() {
-
+        public void Print()
+        {
             UnityEngine.Debug.Log("HeapPropertyHolds? " + HeapPropertyHolds(1));
         }
 
         //should remove
-        public bool HeapPropertyHolds(int index, int depth = 0) {
-
+        public bool HeapPropertyHolds(int index, int depth = 0)
+        {
             if (index > nodesCount)
                 return true;
 
@@ -94,8 +93,8 @@ namespace DataStructures.ViliWonka.Heap {
 
             bool bothHold = true;
 
-            if(L <= nodesCount) {
-
+            if (L <= nodesCount)
+            {
                 UnityEngine.Debug.Log(heap[index] + " => " + heap[L]);
 
                 if (heap[index] < heap[L])
@@ -103,35 +102,38 @@ namespace DataStructures.ViliWonka.Heap {
             }
 
             // if L <= nodesCount, then R <= nodesCount can also happen
-            if (R <= nodesCount) {
-
+            if (R <= nodesCount)
+            {
                 UnityEngine.Debug.Log(heap[index] + " => " + heap[R]);
 
                 if (bothHold && heap[index] < heap[R])
                     bothHold = false;
-
             }
 
             return bothHold & HeapPropertyHolds(L, depth + 1) & HeapPropertyHolds(R, depth + 1);
         }
-
     }
 
     // array start at index 1
     // generic version
-    public class KSmallestHeap<T> : KSmallestHeap {
-
+    public class KSmallestHeap<T> : KSmallestHeap
+    {
         T[] objs; //objects
 
-        public KSmallestHeap(int maxEntries) : base(maxEntries) {
+        public KSmallestHeap(int maxEntries) : base(maxEntries)
+        {
             objs = new T[maxEntries + 1];
         }
 
-        public T HeadHeapObject { get { return objs[1]; } }
+        public T HeadHeapObject
+        {
+            get { return objs[1]; }
+        }
 
         T tempObjs;
-        protected override void Swap(int A, int B) {
 
+        protected override void Swap(int A, int B)
+        {
             tempHeap = heap[A];
             tempObjs = objs[A];
 
@@ -142,29 +144,30 @@ namespace DataStructures.ViliWonka.Heap {
             objs[B] = tempObjs;
         }
 
-        public override void PushValue(float h) {
+        public override void PushValue(float h)
+        {
             throw new System.ArgumentException("Use Push(T, float)!");
         }
 
-        public void PushObj(T obj, float h) {
-
+        public void PushObj(T obj, float h)
+        {
             // if heap full
-            if(nodesCount == maxSize) {
-
+            if (nodesCount == maxSize)
+            {
                 // if Heads priority is smaller than input priority, then ignore that item
-                if(HeadValue < h) {
-
+                if (HeadValue < h)
+                {
                     return;
                 }
-                else {
-
-                    heap[1] = h;   // remove top element
+                else
+                {
+                    heap[1] = h; // remove top element
                     objs[1] = obj;
                     BubbleDownMax(1); // bubble it down
                 }
             }
-            else {
-
+            else
+            {
                 nodesCount++;
                 heap[nodesCount] = h;
                 objs[nodesCount] = obj;
@@ -172,13 +175,14 @@ namespace DataStructures.ViliWonka.Heap {
             }
         }
 
-        public override float PopValue() {
+        public override float PopValue()
+        {
             throw new System.ArgumentException("Use PopObj()!");
         }
 
-        public T PopObj() {
-
-            if(nodesCount == 0)
+        public T PopObj()
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             T result = objs[1];
@@ -192,9 +196,9 @@ namespace DataStructures.ViliWonka.Heap {
             return result;
         }
 
-        public T PopObj(ref float heapValue) {
-
-            if(nodesCount == 0)
+        public T PopObj(ref float heapValue)
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             heapValue = heap[1];
@@ -204,22 +208,24 @@ namespace DataStructures.ViliWonka.Heap {
         }
 
         //flush internal results, returns ordered data
-        public void FlushResult(List<T> resultList, List<float> heapList = null) {
-
+        public void FlushResult(List<T> resultList, List<float> heapList = null)
+        {
             int count = nodesCount + 1;
 
 
-            if(heapList == null) {
-
-                for(int i = 1; i < count; i++) {
+            if (heapList == null)
+            {
+                for (int i = 1; i < count; i++)
+                {
                     resultList.Add(PopObj());
                 }
             }
-            else {
-
+            else
+            {
                 float h = 0f;
 
-                for(int i = 1; i < count; i++) {
+                for (int i = 1; i < count; i++)
+                {
                     resultList.Add(PopObj(ref h));
                     heapList.Add(h);
                 }

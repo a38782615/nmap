@@ -21,14 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace DataStructures.ViliWonka.KDTree {
-
-    public class KDNode {
-
+namespace ET
+{
+    public class KDNode
+    {
         public float partitionCoordinate;
         public int partitionAxis = -1;
 
@@ -38,12 +34,16 @@ namespace DataStructures.ViliWonka.KDTree {
         public int start;
         public int end;
 
-        public int Count { get { return end - start; } }
+        public int Count
+        {
+            get { return end - start; }
+        }
 
-        public bool Leaf { get { return partitionAxis == -1; } }
+        public bool Leaf
+        {
+            get { return partitionAxis == -1; }
+        }
 
         public KDBounds bounds;
-
     };
-
 }

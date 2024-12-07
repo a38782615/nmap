@@ -31,39 +31,36 @@ which means each thread should have it's own KDQuery object in order for queryin
 
 KDQuery can query different KDTrees.
 */
-
-
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using Unity.Mathematics;
 
-namespace DataStructures.ViliWonka.KDTree {
-
-    public partial class KDQuery {
-
-        protected KDQueryNode[] queueArray;  // queue array
-        protected Heap.MinHeap<KDQueryNode>  minHeap; //heap for k-nearest
-        protected int count = 0;             // size of queue
-        protected int queryIndex = 0;        // current index at stack
+namespace ET
+{
+    public partial class KDQuery
+    {
+        protected KDQueryNode[] queueArray; // queue array
+        protected MinHeap<KDQueryNode> minHeap; //heap for k-nearest
+        protected int count = 0; // size of queue
+        protected int queryIndex = 0; // current index at stack
 
         /// <summary>
         /// Returns initialized node from stack that also acts as a pool
         /// The returned reference to node stays in stack
         /// </summary>
         /// <returns>Reference to pooled node</returns>
-        private KDQueryNode PushGetQueue() {
-
+        private KDQueryNode PushGetQueue()
+        {
             KDQueryNode node = null;
 
-            if (count < queueArray.Length) {
-
+            if (count < queueArray.Length)
+            {
                 if (queueArray[count] == null)
                     queueArray[count] = node = new KDQueryNode();
                 else
                     node = queueArray[count];
             }
-            else {
-
+            else
+            {
                 // automatic resize of pool
                 Array.Resize(ref queueArray, queueArray.Length * 2);
                 node = queueArray[count] = new KDQueryNode();
@@ -74,63 +71,60 @@ namespace DataStructures.ViliWonka.KDTree {
             return node;
         }
 
-        protected void PushToQueue(KDNode node, Vector3 tempClosestPoint) {
-
+        protected void PushToQueue(KDNode node, float3 tempClosestPoint)
+        {
             var queryNode = PushGetQueue();
             queryNode.node = node;
             queryNode.tempClosestPoint = tempClosestPoint;
         }
 
-        protected void PushToHeap(KDNode node, Vector3 tempClosestPoint, Vector3 queryPosition) {
-
+        protected void PushToHeap(KDNode node, float3 tempClosestPoint, float3 queryPosition)
+        {
             var queryNode = PushGetQueue();
             queryNode.node = node;
             queryNode.tempClosestPoint = tempClosestPoint;
 
-            float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+            float sqrDist = math.distancesq(tempClosestPoint, queryPosition);
             queryNode.distance = sqrDist;
             minHeap.PushObj(queryNode, sqrDist);
         }
 
-        protected int LeftToProcess {
-
-            get {
-                return count - queryIndex;
-            }
+        protected int LeftToProcess
+        {
+            get { return count - queryIndex; }
         }
 
         // just gets unprocessed node from stack
         // increases queryIndex
-        protected KDQueryNode PopFromQueue() {
-
+        protected KDQueryNode PopFromQueue()
+        {
             var node = queueArray[queryIndex];
             queryIndex++;
 
             return node;
         }
 
-        protected KDQueryNode PopFromHeap() {
-
+        protected KDQueryNode PopFromHeap()
+        {
             KDQueryNode heapNode = minHeap.PopObj();
 
-            queueArray[queryIndex]= heapNode;
+            queueArray[queryIndex] = heapNode;
             queryIndex++;
 
             return heapNode;
         }
 
-        protected void Reset() {
-
+        protected void Reset()
+        {
             count = 0;
             queryIndex = 0;
             minHeap.Clear();
         }
 
-        public KDQuery(int queryNodesContainersInitialSize = 2048) {
+        public KDQuery(int queryNodesContainersInitialSize = 2048)
+        {
             queueArray = new KDQueryNode[queryNodesContainersInitialSize];
-            minHeap = new Heap.MinHeap<KDQueryNode>(queryNodesContainersInitialSize);
+            minHeap = new MinHeap<KDQueryNode>(queryNodesContainersInitialSize);
         }
-
     }
-
 }

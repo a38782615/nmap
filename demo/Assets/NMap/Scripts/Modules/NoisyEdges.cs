@@ -29,10 +29,10 @@ public class NoisyEdges
                     && !path0.ContainsKey(edge.index))
                 {
                     float f = NOISY_LINE_TRADEOFF;
-                    float2 t = float2Extensions.Interpolate(edge.v0.point, edge.d0.point, f);
-                    float2 q = float2Extensions.Interpolate(edge.v0.point, edge.d1.point, f);
-                    float2 r = float2Extensions.Interpolate(edge.v1.point, edge.d0.point, f);
-                    float2 s = float2Extensions.Interpolate(edge.v1.point, edge.d1.point, f);
+                    float2 t = mathExtensions.Interpolate(edge.v0.point, edge.d0.point, f);
+                    float2 q = mathExtensions.Interpolate(edge.v0.point, edge.d1.point, f);
+                    float2 r = mathExtensions.Interpolate(edge.v1.point, edge.d0.point, f);
+                    float2 s = mathExtensions.Interpolate(edge.v1.point, edge.d1.point, f);
 
                     float minLength = 10 * SizeScale;
                     if (edge.d0.biome != edge.d1.biome)
@@ -85,22 +85,22 @@ public class NoisyEdges
         float q = Random.Range(0.2f, 0.8f);// horizontal (along A-B and D-C)
 
         // Midpoints
-        float2 E = float2Extensions.Interpolate(A, D, p);
-        float2 F = float2Extensions.Interpolate(B, C, p);
-        float2 G = float2Extensions.Interpolate(A, B, q);
-        float2 I = float2Extensions.Interpolate(D, C, q);
+        float2 E = mathExtensions.Interpolate(A, D, p);
+        float2 F = mathExtensions.Interpolate(B, C, p);
+        float2 G = mathExtensions.Interpolate(A, B, q);
+        float2 I = mathExtensions.Interpolate(D, C, q);
 
         // Central point
-        float2 H = float2Extensions.Interpolate(E, F, q);
+        float2 H = mathExtensions.Interpolate(E, F, q);
 
         // Divide the quad into subquads, but meet at H
         float s = 1 - Random.Range(-0.4f, 0.4f);
         float t = 1 - Random.Range(-0.4f, 0.4f);
 
-        subdivide(A, float2Extensions.Interpolate(G, B, s), H, float2Extensions.Interpolate(E, D, t), points,
+        subdivide(A, mathExtensions.Interpolate(G, B, s), H, mathExtensions.Interpolate(E, D, t), points,
             minLength);
         points.Add(H);
-        subdivide(H, float2Extensions.Interpolate(F, C, s), C, float2Extensions.Interpolate(I, D, t), points,
+        subdivide(H, mathExtensions.Interpolate(F, C, s), C, mathExtensions.Interpolate(I, D, t), points,
             minLength);
     }
 }

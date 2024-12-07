@@ -23,50 +23,49 @@ SOFTWARE.
 
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-namespace DataStructures.ViliWonka.Tests {
+namespace DataStructures.ViliWonka.Tests
+{
+    using ET;
 
-    using KDTree;
-
-    public class KDTreeQueryResizeTests : MonoBehaviour {
-
+    public class KDTreeQueryResizeTests : MonoBehaviour
+    {
         public QType QueryType;
 
         public int K = 13;
 
-        [Range(0f, 100f)]
-        public float Radius = 0.1f;
+        [Range(0f, 100f)] public float Radius = 0.1f;
 
         public bool DrawQueryNodes = true;
 
-        public Vector3 IntervalSize = new Vector3(0.2f, 0.2f, 0.2f);
+        public float3 IntervalSize = new float3(0.2f, 0.2f, 0.2f);
 
         KDTree tree;
 
         KDQuery query;
 
-        void Awake() {
-
-            Vector3[] pointCloud = new Vector3[1];
+        void Awake()
+        {
+            float3[] pointCloud = new float3[1];
 
             query = new KDQuery();
 
-            for(int i = 0; i < pointCloud.Length; i++) {
-
-                pointCloud[i] = new Vector3(
-
+            for (int i = 0; i < pointCloud.Length; i++)
+            {
+                pointCloud[i] = new float3(
                     (1f + Random.value * 0.25f),
                     (1f + Random.value * 0.25f),
                     (1f + Random.value * 0.25f)
                 );
-
             }
 
-            for(int i = 0; i < pointCloud.Length; i++) {
-
-                for(int j = 0; j < i; j++) {
-
+            for (int i = 0; i < pointCloud.Length; i++)
+            {
+                for (int j = 0; j < i; j++)
+                {
                     pointCloud[i] += LorenzStep(pointCloud[i]) * 0.01f;
                 }
             }
@@ -74,28 +73,28 @@ namespace DataStructures.ViliWonka.Tests {
             tree = new KDTree(pointCloud, 32);
         }
 
-        Vector3 LorenzStep(Vector3 p) {
-
+        float3 LorenzStep(float3 p)
+        {
             float ρ = 28f;
             float σ = 10f;
             float β = 8 / 3f;
 
-            return new Vector3(
-
+            return new float3(
                 σ * (p.y - p.x),
                 p.x * (ρ - p.z) - p.y,
                 p.x * p.y - β * p.z
             );
         }
 
-        void Update() {
-
+        void Update()
+        {
             int oldLen = tree.Count;
-            
+
             tree.SetCount(oldLen + 3);
 
-            for(int i = oldLen; i < tree.Points.Length; i++) {
-                tree.Points[i] = new Vector3(
+            for (int i = oldLen; i < tree.Points.Length; i++)
+            {
+                tree.Points[i] = new float3(
                     (1f + Random.value * 0.9f),
                     (1f + Random.value * 0.9f),
                     (1f + Random.value * 0.9f)
@@ -103,27 +102,28 @@ namespace DataStructures.ViliWonka.Tests {
             }
 
             // repeat 5 times
-            for(int r = 0; r < 5; r++) {
-
-                for(int i = 0; i < tree.Count; i++) {
-
+            for (int r = 0; r < 5; r++)
+            {
+                for (int i = 0; i < tree.Count; i++)
+                {
                     tree.Points[i] += LorenzStep(tree.Points[i]) * Time.deltaTime * 0.1f;
                 }
             }
-            
+
             tree.Rebuild();
         }
 
-        private void OnDrawGizmos() {
-
-            if(query == null) {
+        private void OnDrawGizmos()
+        {
+            if (query == null)
+            {
                 return;
             }
 
-            Vector3 size = 0.2f * Vector3.one;
+            float3 size = 0.2f + new float3(1, 1, 1);
 
-            for(int i = 0; i < tree.Points.Length; i++) {
-
+            for (int i = 0; i < tree.Points.Length; i++)
+            {
                 Gizmos.DrawCube(tree.Points[i], size);
             }
 
@@ -133,49 +133,51 @@ namespace DataStructures.ViliWonka.Tests {
             markColor.a = 0.5f;
             Gizmos.color = markColor;
 
-            switch(QueryType) {
-
-                case QType.ClosestPoint: {
-
+            switch (QueryType)
+            {
+                case QType.ClosestPoint:
+                {
                     query.ClosestPoint(tree, transform.position, resultIndices);
                 }
-                break;
+                    break;
 
-                case QType.KNearest: {
-
+                case QType.KNearest:
+                {
                     query.KNearest(tree, transform.position, K, resultIndices);
                 }
-                break;
+                    break;
 
-                case QType.Radius: {
-
+                case QType.Radius:
+                {
                     query.Radius(tree, transform.position, Radius, resultIndices);
 
                     Gizmos.DrawWireSphere(transform.position, Radius);
                 }
-                break;
+                    break;
 
-                case QType.Interval: {
-
-                    query.Interval(tree, transform.position - IntervalSize/2f, transform.position + IntervalSize/2f, resultIndices);
+                case QType.Interval:
+                {
+                    query.Interval(tree, (float3)transform.position - IntervalSize / 2f,
+                        (float3)transform.position + IntervalSize / 2f, resultIndices);
 
                     Gizmos.DrawWireCube(transform.position, IntervalSize);
                 }
-                break;
+                    break;
 
                 default:
-                break;
+                    break;
             }
 
-            for(int i = 0; i < resultIndices.Count; i++) {
-
+            for (int i = 0; i < resultIndices.Count; i++)
+            {
                 Gizmos.DrawCube(tree.Points[resultIndices[i]], 2f * size);
             }
 
             Gizmos.color = Color.green;
             Gizmos.DrawCube(transform.position, 4f * size);
 
-            if(DrawQueryNodes) {
+            if (DrawQueryNodes)
+            {
                 query.DrawLastQuery();
             }
         }

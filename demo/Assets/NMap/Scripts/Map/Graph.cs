@@ -125,7 +125,7 @@ namespace Assets.Map
                 };
                 if (vedge.p0.HasValue && vedge.p1.HasValue)
                 {
-                    edge.midpoint = float2Extensions.Interpolate(vedge.p0.Value, vedge.p1.Value, 0.5f);
+                    edge.midpoint = mathExtensions.Interpolate(vedge.p0.Value, vedge.p1.Value, 0.5f);
                 }
 
                 edges.Add(edge);

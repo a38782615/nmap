@@ -23,20 +23,19 @@ SOFTWARE.
 
 using System.Collections.Generic;
 
-namespace DataStructures.ViliWonka.Heap {
-
-    public class MaxHeap : BaseHeap {
-
-        public MaxHeap(int initialSize = 2048) : base(initialSize) {
-
-
+namespace ET
+{
+    public class MaxHeap : BaseHeap
+    {
+        public MaxHeap(int initialSize = 2048) : base(initialSize)
+        {
         }
 
-        public override void PushValue(float h) {
-
+        public override void PushValue(float h)
+        {
             // if heap array is full
-            if(nodesCount == maxSize) {
-
+            if (nodesCount == maxSize)
+            {
                 UpsizeHeap();
             }
 
@@ -45,9 +44,9 @@ namespace DataStructures.ViliWonka.Heap {
             BubbleUpMax(nodesCount);
         }
 
-        public override float PopValue() {
-
-            if(nodesCount == 0)
+        public override float PopValue()
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             float result = heap[1];
@@ -61,19 +60,24 @@ namespace DataStructures.ViliWonka.Heap {
     }
 
     // generic version
-    public class MaxHeap<T> : MaxHeap {
-
+    public class MaxHeap<T> : MaxHeap
+    {
         T[] objs; // objects
 
-        public MaxHeap(int maxNodes) : base(maxNodes) {
+        public MaxHeap(int maxNodes) : base(maxNodes)
+        {
             objs = new T[maxNodes + 1];
         }
 
-        public T     HeadHeapObject { get { return objs[1]; } }
+        public T HeadHeapObject
+        {
+            get { return objs[1]; }
+        }
 
         T tempObjs;
-        protected override void Swap(int A, int B) {
 
+        protected override void Swap(int A, int B)
+        {
             tempHeap = heap[A];
             tempObjs = objs[A];
 
@@ -84,18 +88,21 @@ namespace DataStructures.ViliWonka.Heap {
             objs[B] = tempObjs;
         }
 
-        public override void PushValue(float h) {
+        public override void PushValue(float h)
+        {
             throw new System.ArgumentException("Use PushObj(T, float)!");
         }
 
-        public override float PopValue() {
+        public override float PopValue()
+        {
             throw new System.ArgumentException("Use Push(T, float)!");
         }
 
-        public void PushObj(T obj, float h) {
-
+        public void PushObj(T obj, float h)
+        {
             // if heap array is full
-            if(nodesCount == maxSize) {
+            if (nodesCount == maxSize)
+            {
                 UpsizeHeap();
             }
 
@@ -106,9 +113,9 @@ namespace DataStructures.ViliWonka.Heap {
             BubbleUpMin(nodesCount);
         }
 
-        public T PopObj() {
-
-            if(nodesCount == 0)
+        public T PopObj()
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             T result = objs[1];
@@ -125,9 +132,9 @@ namespace DataStructures.ViliWonka.Heap {
         }
 
 
-        public T PopObj(ref float heapValue) {
-
-            if(nodesCount == 0)
+        public T PopObj(ref float heapValue)
+        {
+            if (nodesCount == 0)
                 throw new System.ArgumentException("Heap is empty!");
 
             heapValue = heap[1];
@@ -136,29 +143,31 @@ namespace DataStructures.ViliWonka.Heap {
             return result;
         }
 
-        protected override void UpsizeHeap() {
-
+        protected override void UpsizeHeap()
+        {
             maxSize *= 2;
             System.Array.Resize(ref heap, maxSize + 1);
             System.Array.Resize(ref objs, maxSize + 1);
         }
 
         //flush internal results, returns ordered data
-        public void FlushResult(List<T> resultList, List<float> heapList = null) {
-
+        public void FlushResult(List<T> resultList, List<float> heapList = null)
+        {
             int count = nodesCount + 1;
 
-            if(heapList == null) {
-
-                for(int i = 1; i < count; i++) {
+            if (heapList == null)
+            {
+                for (int i = 1; i < count; i++)
+                {
                     resultList.Add(PopObj());
                 }
             }
-            else {
-
+            else
+            {
                 float h = 0f;
 
-                for(int i = 1; i < count; i++) {
+                for (int i = 1; i < count; i++)
+                {
                     resultList.Add(PopObj(ref h));
                     heapList.Add(h);
                 }

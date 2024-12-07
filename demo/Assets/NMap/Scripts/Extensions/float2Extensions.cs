@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Unity.Mathematics;
 
-public static class float2Extensions
+public static class mathExtensions
 {
     public static float magnitude(this float2 self)
     {
@@ -30,7 +30,23 @@ public static class float2Extensions
         public Point(short aX, short aY) { x = aX; y = aY; }
         public Point(int aX, int aY) : this((short)aX, (short)aY) { }
     }
+    public static float3 InUnitSphere(ref Unity.Mathematics.Random random)
+    {
+        // 随机方向：球坐标系中的 theta 和 phi
+        float theta = random.NextFloat(0f, 2f * math.PI); // 水平方向角度
+        float phi = math.acos(random.NextFloat(-1f, 1f)); // 垂直方向角度
 
+        // 随机半径，使用立方根分布确保均匀分布
+        float r = math.pow(random.NextFloat(), 1f / 3f);
+
+        // 将球坐标转换为笛卡尔坐标
+        float sinPhi = math.sin(phi);
+        return new float3(
+            r * sinPhi * math.cos(theta),
+            r * sinPhi * math.sin(theta),
+            r * math.cos(phi)
+        );
+    }
 }
 
 

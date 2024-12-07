@@ -27,20 +27,20 @@ SOFTWARE.
 #define KDTREE_DUPLICATES
 using System.Collections.Generic;
 using System;
-using UnityEngine;
+using Unity.Mathematics;
 
-namespace DataStructures.ViliWonka.KDTree
+namespace ET
 {
     public class KDTree
     {
         public KDNode RootNode { get; private set; }
 
-        public Vector3[] Points
+        public float3[] Points
         {
             get { return points; }
         } // points on which kd-tree will build on. This array will stay unchanged when re/building kdtree!
 
-        private Vector3[] points;
+        private float3[] points;
 
         public int[] Permutation
         {
@@ -59,7 +59,7 @@ namespace DataStructures.ViliWonka.KDTree
         public KDTree(int maxPointsPerLeafNode = 32)
         {
             Count = 0;
-            points = new Vector3[0];
+            points = new float3[0];
             permutation = new int[0];
 
             kdNodesStack = new KDNode[64];
@@ -67,7 +67,7 @@ namespace DataStructures.ViliWonka.KDTree
             this.maxPointsPerLeafNode = maxPointsPerLeafNode;
         }
 
-        public KDTree(Vector3[] points, int maxPointsPerLeafNode = 32)
+        public KDTree(float3[] points, int maxPointsPerLeafNode = 32)
         {
             this.points = points;
             this.permutation = new int[points.Length];
@@ -80,7 +80,7 @@ namespace DataStructures.ViliWonka.KDTree
             Rebuild();
         }
 
-        public void Build(Vector3[] newPoints, int maxPointsPerLeafNode = -1)
+        public void Build(float3[] newPoints, int maxPointsPerLeafNode = -1)
         {
             SetCount(newPoints.Length);
 
@@ -92,7 +92,7 @@ namespace DataStructures.ViliWonka.KDTree
             Rebuild(maxPointsPerLeafNode);
         }
 
-        public void Build(List<Vector3> newPoints, int maxPointsPerLeafNode = -1)
+        public void Build(List<float3> newPoints, int maxPointsPerLeafNode = -1)
         {
             SetCount(newPoints.Count);
 
@@ -178,11 +178,11 @@ namespace DataStructures.ViliWonka.KDTree
         /// <summary>
         /// For calculating root node bounds
         /// </summary>
-        /// <returns>Boundary of all Vector3 points</returns>
+        /// <returns>Boundary of all float3 points</returns>
         KDBounds MakeBounds()
         {
-            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            float3 max = new float3(float.MinValue, float.MinValue, float.MinValue);
+            float3 min = new float3(float.MaxValue, float.MaxValue, float.MaxValue);
 
             int even = Count & ~1; // calculate even Length
 
@@ -276,10 +276,7 @@ namespace DataStructures.ViliWonka.KDTree
                     max.z = points[even].z;
             }
 
-            KDBounds b = new KDBounds();
-            b.min = min;
-            b.max = max;
-
+            KDBounds b = new KDBounds(min,max);
             return b;
         }
 
@@ -293,7 +290,7 @@ namespace DataStructures.ViliWonka.KDTree
         {
             // center of bounding box
             KDBounds parentBounds = parent.bounds;
-            Vector3 parentBoundsSize = parentBounds.size;
+            float3 parentBoundsSize = parentBounds.size;
 
             // Find axis where bounds are largest
             int splitAxis = 0;
@@ -324,7 +321,7 @@ namespace DataStructures.ViliWonka.KDTree
             int splittingIndex = Partition(parent.start, parent.end, splitPivot, splitAxis);
 
             // Negative / Left node
-            Vector3 negMax = parentBounds.max;
+            float3 negMax = parentBounds.max;
             negMax[splitAxis] = splitPivot;
 
             KDNode negNode = GetKDNode();
@@ -335,7 +332,7 @@ namespace DataStructures.ViliWonka.KDTree
             parent.negativeChild = negNode;
 
             // Positive / Right node
-            Vector3 posMin = parentBounds.min;
+            float3 posMin = parentBounds.min;
             posMin[splitAxis] = splitPivot;
 
             KDNode posNode = GetKDNode();
@@ -471,7 +468,7 @@ namespace DataStructures.ViliWonka.KDTree
         }
 
         /// <summary>
-        /// Constraint function. You can add custom constraints here - if you have some other data/classes binded to Vector3 points
+        /// Constraint function. You can add custom constraints here - if you have some other data/classes binded to float3 points
         /// Can hardcode it into
         /// </summary>
         /// <param name="node"></param>

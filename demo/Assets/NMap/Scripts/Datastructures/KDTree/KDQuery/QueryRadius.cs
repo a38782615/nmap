@@ -22,13 +22,12 @@ SOFTWARE.
 */
 
 using System.Collections.Generic;
-using UnityEngine;
-using System;
+using Unity.Mathematics;
 
-namespace DataStructures.ViliWonka.KDTree {
-
-    public partial class KDQuery {
-
+namespace ET
+{
+    public partial class KDQuery
+    {
         /// <summary>
         /// Search by radius method.
         /// </summary>
@@ -36,11 +35,11 @@ namespace DataStructures.ViliWonka.KDTree {
         /// <param name="queryPosition">Position</param>
         /// <param name="queryRadius">Radius</param>
         /// <param name="resultIndices">Initialized list, cleared.</param>
-        public void Radius(KDTree tree, Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
-
+        public void Radius(KDTree tree, float3 queryPosition, float queryRadius, List<int> resultIndices)
+        {
             Reset();
 
-            Vector3[] points = tree.Points;
+            float3[] points = tree.Points;
             int[] permutation = tree.Permutation;
 
             float squaredRadius = queryRadius * queryRadius;
@@ -54,20 +53,20 @@ namespace DataStructures.ViliWonka.KDTree {
 
             // KD search with pruning (don't visit areas which distance is more away than range)
             // Recursion done on Stack
-            while(LeftToProcess > 0) {
-
+            while (LeftToProcess > 0)
+            {
                 queryNode = PopFromQueue();
                 node = queryNode.node;
 
-                if(!node.Leaf) {
-
+                if (!node.Leaf)
+                {
                     int partitionAxis = node.partitionAxis;
                     float partitionCoord = node.partitionCoordinate;
 
-                    Vector3 tempClosestPoint = queryNode.tempClosestPoint;
+                    float3 tempClosestPoint = queryNode.tempClosestPoint;
 
-                    if((tempClosestPoint[partitionAxis] - partitionCoord) < 0) {
-
+                    if ((tempClosestPoint[partitionAxis] - partitionCoord) < 0)
+                    {
                         // we already know we are inside negative bound/node,
                         // so we don't need to test for distance
                         // push to stack for later querying
@@ -78,17 +77,17 @@ namespace DataStructures.ViliWonka.KDTree {
 
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+                        float sqrDist = math.distancesq(tempClosestPoint, queryPosition);
 
                         // testing other side
-                        if(node.positiveChild.Count != 0
-                        && sqrDist <= squaredRadius) {
-
+                        if (node.positiveChild.Count != 0
+                            && sqrDist <= squaredRadius)
+                        {
                             PushToQueue(node.positiveChild, tempClosestPoint);
                         }
                     }
-                    else {
-
+                    else
+                    {
                         // we already know we are inside positive bound/node,
                         // so we don't need to test for distance
                         // push to stack for later querying
@@ -100,32 +99,30 @@ namespace DataStructures.ViliWonka.KDTree {
                         // project the tempClosestPoint to other bound
                         tempClosestPoint[partitionAxis] = partitionCoord;
 
-                        float sqrDist = Vector3.SqrMagnitude(tempClosestPoint - queryPosition);
+                        float sqrDist = math.lengthsq(tempClosestPoint - queryPosition);
 
                         // testing other side
-                        if(node.negativeChild.Count != 0
-                        && sqrDist <= squaredRadius) {
-
+                        if (node.negativeChild.Count != 0
+                            && sqrDist <= squaredRadius)
+                        {
                             PushToQueue(node.negativeChild, tempClosestPoint);
                         }
                     }
                 }
-                else {
-
+                else
+                {
                     // LEAF
-                    for(int i = node.start; i < node.end; i++) {
-
+                    for (int i = node.start; i < node.end; i++)
+                    {
                         int index = permutation[i];
 
-                        if(Vector3.SqrMagnitude(points[index] - queryPosition) <= squaredRadius) {
-
+                        if (math.lengthsq(points[index] - queryPosition) <= squaredRadius)
+                        {
                             resultIndices.Add(index);
                         }
                     }
-
                 }
             }
         }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Assets.Map;
+using ET;
 using Unity.Mathematics;
 using UnityEngine.UI;
 using Random = Unity.Mathematics.Random;
@@ -140,7 +141,8 @@ public class UI_GenNameMap : MonoBehaviour
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);
 
-        new MapTexture(TextureScale).AttachTexture(_showMap, map, noisyEdge);
+        var mapg = GameObject.Find("Map");
+        mapg.GetComponent<DrawMap>().GenMap(map);
     }
     public static System.Func<float2, bool> CheckIsland()
     {
@@ -166,16 +168,10 @@ public class UI_GenNameMap : MonoBehaviour
         Texture2D output = new Texture2D(_txtWidth, _txtHeight);
         RenderTexture renderTexture = new RenderTexture(_txtWidth, _txtHeight, 24);
         RenderTexture.active = renderTexture;
-        GameObject tempObject = new GameObject("Temporary");
-        tempObject.transform.position = new Vector3(0.5f,0.5f,0);
         Camera myCamera = Camera.main;
         myCamera.orthographic = true;
         myCamera.orthographicSize = 100;
         myCamera.targetTexture = renderTexture;
-        Text gText = tempObject.AddComponent<Text>();
-        gText.text = _inputName.text;
-        gText.font = _dFont;
-        gText.fontSize = gText.text.Length <=3?125: 100;
 
         _showMap.SetActive(false);
         myCamera.Render();
@@ -189,9 +185,6 @@ public class UI_GenNameMap : MonoBehaviour
         myCamera.targetTexture = null;
         myCamera.orthographic = false;
         myCamera.Render();
-
-        Destroy(tempObject);
-
         return output;
     }
 }
