@@ -21,8 +21,16 @@ namespace ET
 
         float2[] s_tileUV = new float2[4];
         private Brush brush;
+
+        public Dictionary<int2, MapNode> Map;
+
+        public MapLogic()
+        {
+            Init();
+        }
         public void Init()
         {
+            Map = new Dictionary<int2, MapNode>();
             s_vertices = new List<float3>();
             s_triangles = new List<int>();
             m_uv = new List<float2>();
@@ -87,19 +95,13 @@ namespace ET
             }
         }
 
-        public Dictionary<int2, MapNode> Map = new Dictionary<int2, MapNode>();
-
-        public void CreateMap(Dictionary<int2, MapNode> map)
+        public void CreateMap()
         {
-            Map.Clear();
-            foreach (var item in map)
+            foreach (var eitem in Map)
             {
-                Map.Add(item.Key, item.Value);
-            }
-            foreach (var item in map)
-            {
-                var i = item.Key.x;
-                var j = item.Key.y;
+                var item = eitem.Value;
+                var i = item.Pos.x;
+                var j = item.Pos.y;
                 var hasNode = HasNode(i, j);
                 if (hasNode)
                 {
@@ -147,9 +149,6 @@ namespace ET
                     }
 
                     mask += msk;
-                    if (msk > 0)
-                    {
-                    }
                 }
             }
 

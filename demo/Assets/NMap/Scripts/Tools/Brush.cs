@@ -1,21 +1,14 @@
 using System.Collections.Generic;
 using System.Drawing;
+using Assets.Map;
 using Unity.Mathematics;
 
 namespace ET
 {
-    public enum MapNodeType
-    {
-        None = 0,
-        Grass = 1,
-        Water = 2,
-        Rock = 3
-    }
-
     public struct MapNode
     {
         public int2 Pos;
-        public MapNodeType NodeType;
+        public Center Center;
     }
 
     public struct UVTileCover

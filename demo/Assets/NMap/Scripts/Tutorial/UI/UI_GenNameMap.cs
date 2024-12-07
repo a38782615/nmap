@@ -15,7 +15,6 @@ public class UI_GenNameMap : MonoBehaviour
     private Font _dFont;
     private RawImage _image;
     private Text _mouseBiome;
-    private GameObject _showMap;
 	void Start ()
 	{
         _inputName = transform.Find("inputName").GetComponent<InputField>();
@@ -25,8 +24,6 @@ public class UI_GenNameMap : MonoBehaviour
 	    _dFont = _inputName.textComponent.font;
 
         _btnGen.onClick.AddListener(GenMap);
-
-	    _showMap = GameObject.Find("Map");
 
         transform.Find("Toggles1/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(Toggle1);
         transform.Find("Toggles1/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(Toggle2);
@@ -141,8 +138,10 @@ public class UI_GenNameMap : MonoBehaviour
         NoisyEdges noisyEdge = new NoisyEdges();
         noisyEdge.BuildNoisyEdges(map);
 
-        var mapg = GameObject.Find("Map");
-        mapg.GetComponent<DrawMap>().GenMap(map);
+        var mapGo = GameObject.Find("Map");
+        var drawmap = new DrawMap(mapGo);
+        drawmap.Init();
+        drawmap.GenMap(map);
     }
     public static System.Func<float2, bool> CheckIsland()
     {
@@ -172,10 +171,7 @@ public class UI_GenNameMap : MonoBehaviour
         myCamera.orthographic = true;
         myCamera.orthographicSize = 100;
         myCamera.targetTexture = renderTexture;
-
-        _showMap.SetActive(false);
         myCamera.Render();
-        _showMap.SetActive(true);
 
         output.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         output.Apply();

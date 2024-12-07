@@ -1,9 +1,50 @@
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
-public static class Texture2DExtensions
+public static class DrawUtil
 {
+    public static List<float3> ToList(List<Vector3> points, List<float3> ps)
+    {
+        ps.Clear();
+        foreach (var v in points)
+        {
+            ps.Add(v);
+        }
+
+        return ps;
+    }
+    public static List<float2> ToList(List<Vector2> points, List<float2> ps)
+    {
+        ps.Clear();
+        foreach (var v in points)
+        {
+            ps.Add(v);
+        }
+
+        return ps;
+    }
+    public static List<Vector2> ToList(List<float2> points, List<Vector2> ps)
+    {
+        ps.Clear();
+        foreach (var v in points)
+        {
+            ps.Add(v);
+        }
+
+        return ps;
+    }
+    public static List<Vector3> ToList(List<float3> points, List<Vector3> ps)
+    {
+        ps.Clear();
+        foreach (var v in points)
+        {
+            ps.Add(v);
+        }
+        return ps;
+    }
+
     public static void DrawLine(this Texture2D tex, int x0, int y0, int x1, int y1, Color col)
     {
         int dy = (int)(y1 - y0);
