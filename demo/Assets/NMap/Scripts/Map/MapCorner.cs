@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
 
-namespace Assets.Map
+namespace ET
 {
-    public class Corner
+    public class MapCorner
     {
         public int index;
 
@@ -15,13 +15,13 @@ namespace Assets.Map
         public float elevation;  // 0.0-1.0
         public float moisture;  // 0.0-1.0
 
-        public List<Center> touches = new List<Center>();
-        public List<Edge> protrudes = new List<Edge>();
-        public List<Corner> adjacent = new List<Corner>();
+        public List<MapCenter> touches = new List<MapCenter>();
+        public List<MapEdge> protrudes = new List<MapEdge>();
+        public List<MapCorner> adjacent = new List<MapCorner>();
 
         public int river;  // 0 if no river, or volume of water in river
-        public Corner downslope;  // pointer to adjacent corner most downhill
-        public Corner watershed;  // pointer to coastal corner, or null
+        public MapCorner downslope;  // pointer to adjacent corner most downhill
+        public MapCorner watershed;  // pointer to coastal corner, or null
         public int watershed_size;
     }
 }

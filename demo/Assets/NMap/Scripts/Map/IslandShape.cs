@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using Random = Unity.Mathematics.Random;
 
-namespace Assets.Map
+namespace ET
 {
     public class IslandShape
     {

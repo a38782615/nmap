@@ -1,9 +1,9 @@
 using UnityEngine;
-using Assets.Map;
+using ET;
 
 public class Main : MonoBehaviour
 {
-    Map _map;
+    BiomeMap _biomeMap;
     const int _textureScale = 10;
     GameObject _selector;
 
@@ -21,14 +21,14 @@ public class Main : MonoBehaviour
 
         //Random.seed = 1;
             
-        _map = new Map();
-        _map.Init(1);
+        _biomeMap = new BiomeMap();
+        _biomeMap.Init(1);
 
-        GameObject.Find("Main MyCamera").GetComponentInChildren<MyCamera>().Map = _map;
+        GameObject.Find("Main MyCamera").GetComponentInChildren<MyCamera>().BiomeMap = _biomeMap;
 
         NoisyEdges noisyEdge = new NoisyEdges();
-        noisyEdge.BuildNoisyEdges(_map);
+        noisyEdge.BuildNoisyEdges(_biomeMap);
 
-        new MapTexture(_textureScale).AttachTexture(GameObject.Find("Map"), _map,noisyEdge);
+        new MapTexture(_textureScale).AttachTexture(GameObject.Find("Map"), _biomeMap,noisyEdge);
 	}
 }

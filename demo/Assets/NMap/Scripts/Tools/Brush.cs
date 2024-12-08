@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Drawing;
-using Assets.Map;
 using Unity.Mathematics;
 
 namespace ET
@@ -8,7 +7,7 @@ namespace ET
     public struct MapNode
     {
         public int2 Pos;
-        public Center Center;
+        public MapCenter MapCenter;
     }
 
     public struct UVTileCover

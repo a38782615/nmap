@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Delaunay.Geo;
-using Delaunay.LR;
 using Unity.Mathematics;
 
-namespace Delaunay
+namespace ET
 {
     public sealed class Site : ICoord, IComparable
     {
@@ -97,7 +95,7 @@ namespace Delaunay
         }
 
         // which end of each edge hooks up with the previous edge in _edges:
-        private List<Side> _edgeOrientations;
+        private List<LRSide> _edgeOrientations;
 
         // ordered list of points that define the region clipped to bounds:
         private List<float2> _region;
@@ -221,7 +219,7 @@ namespace Delaunay
             {
                 ReorderEdges();
                 _region = ClipToBounds(clippingBounds);
-                if ((new Polygon(_region)).Winding() == Winding.CLOCKWISE)
+                if ((new GeoPolygon(_region)).Winding() == GeoWinding.CLOCKWISE)
                 {
                     _region.Reverse();
                 }
@@ -258,7 +256,7 @@ namespace Delaunay
             }
 
             edge = _edges[i];
-            Side orientation = _edgeOrientations[i];
+            LRSide orientation = _edgeOrientations[i];
 
             var error = "";
             if (edge.clippedEnds[orientation] == null)
@@ -295,7 +293,7 @@ namespace Delaunay
         {
             float2 rightPoint = points[points.Count - 1];
             Edge newEdge = _edges[j] as Edge;
-            Side newOrientation = _edgeOrientations[j];
+            LRSide newOrientation = _edgeOrientations[j];
             // the point that  must be connected to rightPoint:
             if (newEdge.clippedEnds[newOrientation] == null)
             {

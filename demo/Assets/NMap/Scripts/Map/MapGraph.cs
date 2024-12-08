@@ -1,35 +1,35 @@
-﻿using Delaunay;
+﻿using ET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Unity.Mathematics;
 
-namespace Assets.Map
+namespace ET
 {
-    public class Graph
+    public class MapGraph
     {
-        List<KeyValuePair<int, Corner>> _cornerMap = new List<KeyValuePair<int, Corner>>();
+        List<KeyValuePair<int, MapCorner>> _cornerMap = new List<KeyValuePair<int, MapCorner>>();
         Func<float2, bool> inside;
         bool _needsMoreRandomness;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public List<Center> centers = new List<Center>();
-        public List<Corner> corners = new List<Corner>();
-        public List<Edge> edges = new List<Edge>();
+        public List<MapCenter> centers = new List<MapCenter>();
+        public List<MapCorner> corners = new List<MapCorner>();
+        public List<MapEdge> edges = new List<MapEdge>();
 
-        private List<Corner> LandCorners
+        private List<MapCorner> LandCorners
         {
             get { return corners.Where(p => !p.ocean && !p.coast).ToList(); }
         }
 
-        public Graph(IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
+        public MapGraph(IEnumerable<float2> points, Voronoi voronoi, int width, int height, float lakeThreshold)
         {
             Init(IslandShape.makePerlin(), points, voronoi, width, height, lakeThreshold);
         }
 
-        public Graph(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height,
+        public MapGraph(Func<float2, bool> checkIsland, IEnumerable<float2> points, Voronoi voronoi, int width, int height,
             float lakeThreshold)
         {
             Init(checkIsland, points, voronoi, width, height, lakeThreshold);
@@ -75,7 +75,7 @@ namespace Assets.Map
             centers.ForEach(p => p.biome = GetBiome(p));
         }
 
-        private void BuildGraph(IEnumerable<float2> points, Delaunay.Voronoi voronoi)
+        private void BuildGraph(IEnumerable<float2> points, ET.Voronoi voronoi)
         {
             // Build graph data structure in 'edges', 'centers', 'corners',
             // based on information in the Voronoi results: point.neighbors
@@ -87,13 +87,13 @@ namespace Assets.Map
             // point, and the Voronoi edge may be null.
             var libedges = voronoi.Edges();
 
-            var centerLookup = new Dictionary<float2?, Center>();
+            var centerLookup = new Dictionary<float2?, MapCenter>();
 
             // Build Center objects for each of the points, and a lookup map
             // to find those Center objects again as we build the graph
             foreach (var point in points)
             {
-                var p = new Center { index = centers.Count, point = point };
+                var p = new MapCenter { index = centers.Count, point = point };
                 centers.Add(p);
                 centerLookup[point] = p;
             }
@@ -112,7 +112,7 @@ namespace Assets.Map
 
                 // Fill the graph data. Make an Edge object corresponding to
                 // the edge from the voronoi library.
-                var edge = new Edge
+                var edge = new MapEdge
                 {
                     index = edges.Count,
                     river = 0,
@@ -212,24 +212,24 @@ namespace Assets.Map
             }
         }
 
-        private static void AddCorner(Center topLeft, int x, int y)
+        private static void AddCorner(MapCenter topLeft, int x, int y)
         {
             if (topLeft.point.x != x || topLeft.point.y != y)
-                topLeft.corners.Add(new Corner { ocean = true, point = new float2(x, y) });
+                topLeft.corners.Add(new MapCorner { ocean = true, point = new float2(x, y) });
         }
 
-        private Comparison<Corner> ClockwiseComparison(Center center)
+        private Comparison<MapCorner> ClockwiseComparison(MapCenter mapCenter)
         {
-            Comparison<Corner> result =
+            Comparison<MapCorner> result =
                 (a, b) =>
                 {
-                    return (int)(((a.point.x - center.point.x) * (b.point.y - center.point.y) -
-                                  (b.point.x - center.point.x) * (a.point.y - center.point.y)) * 1000);
+                    return (int)(((a.point.x - mapCenter.point.x) * (b.point.y - mapCenter.point.y) -
+                                  (b.point.x - mapCenter.point.x) * (a.point.y - mapCenter.point.y)) * 1000);
                 };
             return result;
         }
 
-        private Corner MakeCorner(float2? nullablePoint)
+        private MapCorner MakeCorner(float2? nullablePoint)
         {
             // The Voronoi library generates multiple Point objects for
             // corners, and we need to canonicalize to one Corner object.
@@ -254,22 +254,22 @@ namespace Assets.Map
                 }
             }
 
-            var corner = new Corner { index = corners.Count, point = point };
+            var corner = new MapCorner { index = corners.Count, point = point };
             corners.Add(corner);
             corner.border = point.x == 0 || point.x == Width || point.y == 0 || point.y == Height;
 
-            _cornerMap.Add(new KeyValuePair<int, Corner>((int)(point.x), corner));
+            _cornerMap.Add(new KeyValuePair<int, MapCorner>((int)(point.x), corner));
 
             return corner;
         }
 
-        private void AddToCornerList(List<Corner> v, Corner x)
+        private void AddToCornerList(List<MapCorner> v, MapCorner x)
         {
             if (x != null && v.IndexOf(x) < 0)
                 v.Add(x);
         }
 
-        private void AddToCenterList(List<Center> v, Center x)
+        private void AddToCenterList(List<MapCenter> v, MapCenter x)
         {
             if (x != null && v.IndexOf(x) < 0)
             {
@@ -289,7 +289,7 @@ namespace Assets.Map
             // elevation as much as other terrain does.
 
             //var q:Corner, s:Corner;
-            var queue = new Queue<Corner>();
+            var queue = new Queue<MapCorner>();
 
             foreach (var q in corners)
             {
@@ -360,7 +360,7 @@ namespace Assets.Map
             // map. In the first pass, mark the edges of the map as ocean;
             // in the second pass, mark any water-containing polygon
             // connected an ocean as ocean.
-            var queue = new Queue<Center>();
+            var queue = new Queue<MapCenter>();
             //var p:Center, q:Corner, r:Center, numWater:int;
 
             foreach (var p in centers)
@@ -580,7 +580,7 @@ namespace Assets.Map
             // and lakes (not oceans). Saltwater sources have moisture but do
             // not spread it (we set it at the end, after propagation).
 
-            var queue = new Queue<Corner>();
+            var queue = new Queue<MapCorner>();
             // Fresh water
             foreach (var q in corners)
             {
@@ -637,7 +637,7 @@ namespace Assets.Map
             }
         }
 
-        public Edge lookupEdgeFromCenter(Center p, Center r)
+        public MapEdge lookupEdgeFromCenter(MapCenter p, MapCenter r)
         {
             foreach (var edge in p.borders)
             {
@@ -648,7 +648,7 @@ namespace Assets.Map
             return null;
         }
 
-        public Edge lookupEdgeFromCorner(Corner q, Corner s)
+        public MapEdge lookupEdgeFromCorner(MapCorner q, MapCorner s)
         {
             foreach (var edge in q.protrudes)
             {
@@ -671,7 +671,7 @@ namespace Assets.Map
             }
         }
 
-        static Biome GetBiome(Center p)
+        static Biome GetBiome(MapCenter p)
         {
             if (p.ocean)
             {
@@ -718,8 +718,8 @@ namespace Assets.Map
 
         public static IEnumerable<float2> RelaxPoints(IEnumerable<float2> startingPoints, float width, float height)
         {
-            Delaunay.Voronoi v =
-                new Delaunay.Voronoi(startingPoints.ToList(), null, new RectangleF(0, 0, width, height));
+            ET.Voronoi v =
+                new ET.Voronoi(startingPoints.ToList(), null, new RectangleF(0, 0, width, height));
             foreach (var point in startingPoints)
             {
                 var region = v.Region(point);

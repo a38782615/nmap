@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
-using Assets.Map;
+using ET;
 using Random = UnityEngine.Random;
 
 public class UI_Main : MonoBehaviour
@@ -16,13 +16,13 @@ public class UI_Main : MonoBehaviour
     #region Tutorial
     void GenMap0()
     {
-        Map map = new Map();
-        map.Init(MapSeed);
+        BiomeMap biomeMap = new BiomeMap();
+        biomeMap.Init(MapSeed);
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
-        noisyEdge.BuildNoisyEdges(map);
+        noisyEdge.BuildNoisyEdges(biomeMap);
 
-        new MapTexture(TextureScale).AttachTexture(GameObject.Find("Map"), map, noisyEdge);
+        new MapTexture(TextureScale).AttachTexture(GameObject.Find("Map"), biomeMap, noisyEdge);
     }
 
     private void GenMap1()

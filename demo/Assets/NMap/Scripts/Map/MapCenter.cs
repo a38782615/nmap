@@ -2,9 +2,9 @@
 using System.Linq;
 using Unity.Mathematics;
 
-namespace Assets.Map
+namespace ET
 {
-    public class Center
+    public class MapCenter
     {
         public int index;
         public float2 point;   // location
@@ -15,9 +15,9 @@ namespace Assets.Map
         public Biome biome;     // biome type 
         public float elevation; // 0.0-1.0
         public float moisture;  // 0.0-1.0
-        public List<Center> neighbors = new List<Center>();
-        public List<Edge> borders = new List<Edge>();
-        public List<Corner> corners = new List<Corner>();
+        public List<MapCenter> neighbors = new List<MapCenter>();
+        public List<MapEdge> borders = new List<MapEdge>();
+        public List<MapCorner> corners = new List<MapCorner>();
 
         public bool PointInside(float x, float y)
         {

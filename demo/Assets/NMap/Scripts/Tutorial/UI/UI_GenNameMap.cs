@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Assets.Map;
 using ET;
 using Unity.Mathematics;
 using UnityEngine.UI;
@@ -129,19 +128,19 @@ public class UI_GenNameMap : MonoBehaviour
     {
         _txtTexture = GetTextTexture();
 
-        Map.Width = Width;
-        Map.Height = Height;
-        Map map = new Map();
-        map.SetPointNum(_pointNum);
-        map.Init(MapSeed, CheckIsland());
+        BiomeMap.Width = Width;
+        BiomeMap.Height = Height;
+        BiomeMap biomeMap = new BiomeMap();
+        biomeMap.SetPointNum(_pointNum);
+        biomeMap.Init(MapSeed, CheckIsland());
         //扰乱边缘
         NoisyEdges noisyEdge = new NoisyEdges();
-        noisyEdge.BuildNoisyEdges(map);
+        noisyEdge.BuildNoisyEdges(biomeMap);
 
         var mapGo = GameObject.Find("Map");
         var drawmap = new DrawMap(mapGo);
         drawmap.Init();
-        drawmap.GenMap(map);
+        drawmap.GenMap(biomeMap);
     }
     public static System.Func<float2, bool> CheckIsland()
     {

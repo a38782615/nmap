@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Map
+namespace ET
 {
     public static class BiomeProperties
     {

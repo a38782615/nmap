@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace Assets.Map
+namespace ET
 {
     public class MapTexture1
     {
@@ -20,7 +20,7 @@ namespace Assets.Map
             var texture = new Texture2D(textureWidth, textureHeight, TextureFormat.RGB565, true);
             texture.SetPixels(Enumerable.Repeat(Color.gray, textureWidth * textureHeight).ToArray());
 
-            var lines = map.Graph.edges.Where(p => p.v0 != null).Select(p => new[]
+            var lines = map.MapGraph.edges.Where(p => p.v0 != null).Select(p => new[]
             {
                 p.v0.point.x, p.v0.point.y,
                 p.v1.point.x, p.v1.point.y
@@ -29,7 +29,7 @@ namespace Assets.Map
             foreach (var line in lines)
                 DrawLine(texture, line[0], line[1], line[2], line[3], Color.black);
 
-            var points = map.Graph.centers.Select(p => p.point).ToList();
+            var points = map.MapGraph.centers.Select(p => p.point).ToList();
             foreach (var p in points)
                 texture.SetPixel((int) (p.x*_textureScale), (int) (p.y*_textureScale), Color.red);
 
@@ -50,7 +50,7 @@ namespace Assets.Map
             //Delaynay
             {
                 //Delaunay 边
-                var lines = map.Graph.edges.Where(p => p.d0 != null).Select(p => new[]
+                var lines = map.MapGraph.edges.Where(p => p.d0 != null).Select(p => new[]
                 {
                     p.d0.point.x, p.d0.point.y,
                     p.d1.point.x, p.d1.point.y
@@ -60,13 +60,13 @@ namespace Assets.Map
                     DrawLine(texture, line[0], line[1], line[2], line[3], Color.black);
 
                 //Delaunay 中心
-                var points = map.Graph.centers.Select(p => p.point).ToList();
+                var points = map.MapGraph.centers.Select(p => p.point).ToList();
                 foreach (var p in points)
                     texture.SetPixel((int)(p.x * _textureScale), (int)(p.y * _textureScale), Color.red);
             }
             //voronoi
             {
-                var lines = map.Graph.edges.Where(p => p.v0 != null).Select(p => new[]
+                var lines = map.MapGraph.edges.Where(p => p.v0 != null).Select(p => new[]
                 {
                     p.v0.point.x, p.v0.point.y,
                     p.v1.point.x, p.v1.point.y

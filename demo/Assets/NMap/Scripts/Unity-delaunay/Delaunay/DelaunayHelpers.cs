@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Delaunay.Geo;
-using Delaunay.LR;
 using Unity.Mathematics;
 
-namespace Delaunay
+namespace ET
 {	
 
 	public class Node
@@ -23,16 +21,16 @@ namespace Delaunay
 
 	public static class DelaunayHelpers
 	{
-		public static List<LineSegment> VisibleLineSegments (List<Edge> edges)
+		public static List<GeoLineSegment> VisibleLineSegments (List<Edge> edges)
 		{
-			List<LineSegment> segments = new List<LineSegment> ();
+			List<GeoLineSegment> segments = new List<GeoLineSegment> ();
 			
 			for (int i = 0; i<edges.Count; i++) {
 				Edge edge = edges [i];
 				if (edge.visible) {
-					Nullable<float2> p1 = edge.clippedEnds [Side.LEFT];
-					Nullable<float2> p2 = edge.clippedEnds [Side.RIGHT];
-					segments.Add (new LineSegment (p1, p2));
+					Nullable<float2> p1 = edge.clippedEnds [LRSide.LEFT];
+					Nullable<float2> p2 = edge.clippedEnds [LRSide.RIGHT];
+					segments.Add (new GeoLineSegment (p1, p2));
 				}
 			}
 			
@@ -66,9 +64,9 @@ namespace Delaunay
 //			}
 		}
 
-		public static List<LineSegment> DelaunayLinesForEdges (List<Edge> edges)
+		public static List<GeoLineSegment> DelaunayLinesForEdges (List<Edge> edges)
 		{
-			List<LineSegment> segments = new List<LineSegment> ();
+			List<GeoLineSegment> segments = new List<GeoLineSegment> ();
 			Edge edge;
 			for (int i = 0; i < edges.Count; i++) {
 				edge = edges [i];
@@ -82,60 +80,60 @@ namespace Delaunay
 		 * Skiena: The Algorithm Design Manual, p. 196ff
 		 * Note: the sites are implied: they consist of the end points of the line segments
 		*/
-		public static List<LineSegment> Kruskal (List<LineSegment> lineSegments, KruskalType type = KruskalType.MINIMUM)
+		public static List<GeoLineSegment> Kruskal (List<GeoLineSegment> lineSegments, KruskalType type = KruskalType.MINIMUM)
 		{
 			Dictionary<Nullable<float2>,Node> nodes = new Dictionary<Nullable<float2>,Node> ();
-			List<LineSegment> mst = new List<LineSegment> ();
+			List<GeoLineSegment> mst = new List<GeoLineSegment> ();
 			Stack<Node> nodePool = Node.pool;
 			
 			switch (type) {
 			// note that the compare functions are the reverse of what you'd expect
 			// because (see below) we traverse the lineSegments in reverse order for speed
 			case KruskalType.MAXIMUM:
-				lineSegments.Sort (delegate (LineSegment l1, LineSegment l2) {
-					return LineSegment.CompareLengths (l1, l2);
+				lineSegments.Sort (delegate (GeoLineSegment l1, GeoLineSegment l2) {
+					return GeoLineSegment.CompareLengths (l1, l2);
 				});
 				break;
 			default:
-				lineSegments.Sort (delegate (LineSegment l1, LineSegment l2) {
-					return LineSegment.CompareLengths_MAX (l1, l2);
+				lineSegments.Sort (delegate (GeoLineSegment l1, GeoLineSegment l2) {
+					return GeoLineSegment.CompareLengths_MAX (l1, l2);
 				});
 				break;
 			}
 			
 			for (int i = lineSegments.Count; --i > -1;) {
-				LineSegment lineSegment = lineSegments [i];
+				GeoLineSegment geoLineSegment = lineSegments [i];
 
 				Node node0 = null;
 				Node rootOfSet0;
-				if (!nodes.ContainsKey (lineSegment.p0)) {
+				if (!nodes.ContainsKey (geoLineSegment.p0)) {
 					node0 = nodePool.Count > 0 ? nodePool.Pop () : new Node ();
 					// intialize the node:
 					rootOfSet0 = node0.parent = node0;
 					node0.treeSize = 1;
 					
-					nodes [lineSegment.p0] = node0;
+					nodes [geoLineSegment.p0] = node0;
 				} else {
-					node0 = nodes [lineSegment.p0];
+					node0 = nodes [geoLineSegment.p0];
 					rootOfSet0 = Find (node0);
 				}
 				
 				Node node1 = null;
 				Node rootOfSet1;
-				if (!nodes.ContainsKey (lineSegment.p1)) {
+				if (!nodes.ContainsKey (geoLineSegment.p1)) {
 					node1 = nodePool.Count > 0 ? nodePool.Pop () : new Node ();
 					// intialize the node:
 					rootOfSet1 = node1.parent = node1;
 					node1.treeSize = 1;
 					
-					nodes [lineSegment.p1] = node1;
+					nodes [geoLineSegment.p1] = node1;
 				} else {
-					node1 = nodes [lineSegment.p1];
+					node1 = nodes [geoLineSegment.p1];
 					rootOfSet1 = Find (node1);
 				}
 				
 				if (rootOfSet0 != rootOfSet1) {	// nodes not in same set
-					mst.Add (lineSegment);
+					mst.Add (geoLineSegment);
 					
 					// merge the two sets:
 					int treeSize0 = rootOfSet0.treeSize;

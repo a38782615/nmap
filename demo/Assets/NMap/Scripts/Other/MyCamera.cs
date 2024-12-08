@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Assets.Map;
+using ET;
 
 public class MyCamera : MonoBehaviour
 {
-    public Map Map;
+    public BiomeMap BiomeMap;
     float _mousePosX;
     float _mousePosY;
     float _scrollSpeed = 0.2f;
@@ -32,8 +32,8 @@ public class MyCamera : MonoBehaviour
 
         if (Input.GetMouseButton(1))
         {
-            var newX = Mathf.Clamp(transform.parent.position.x + deltaX * _scrollSpeed, 0, Map.Width);
-            var newY = Mathf.Clamp(transform.parent.position.y + deltaY * _scrollSpeed, 0, Map.Height);
+            var newX = Mathf.Clamp(transform.parent.position.x + deltaX * _scrollSpeed, 0, BiomeMap.Width);
+            var newY = Mathf.Clamp(transform.parent.position.y + deltaY * _scrollSpeed, 0, BiomeMap.Height);
 
             transform.parent.position = new Vector3(newX, newY, transform.parent.position.z);
         }

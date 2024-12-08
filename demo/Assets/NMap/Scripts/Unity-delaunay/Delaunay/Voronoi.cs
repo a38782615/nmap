@@ -15,13 +15,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Delaunay.Geo;
-using Delaunay.LR;
 using Unity.Mathematics;
 
-namespace Delaunay
+namespace ET
 {
-    public sealed class Voronoi : Utils.IDisposable
+    public sealed class Voronoi : IDisposable
     {
         private SiteList _sites;
         private Dictionary<float2, Site> _sitesIndexedByLocation;
@@ -142,33 +140,33 @@ namespace Delaunay
             return points;
         }
 
-        public List<Circle> Circles()
+        public List<GeoCircle> Circles()
         {
             return _sites.Circles();
         }
 
-        public List<LineSegment> VoronoiBoundaryForSite(float2 coord)
+        public List<GeoLineSegment> VoronoiBoundaryForSite(float2 coord)
         {
             return DelaunayHelpers.VisibleLineSegments(DelaunayHelpers.SelectEdgesForSitePoint(coord, _edges));
         }
 
-        public List<LineSegment> DelaunayLinesForSite(float2 coord)
+        public List<GeoLineSegment> DelaunayLinesForSite(float2 coord)
         {
             return DelaunayHelpers.DelaunayLinesForEdges(DelaunayHelpers.SelectEdgesForSitePoint(coord, _edges));
         }
 
-        public List<LineSegment> VoronoiDiagram()
+        public List<GeoLineSegment> VoronoiDiagram()
         {
             return DelaunayHelpers.VisibleLineSegments(_edges);
         }
 
-        public List<LineSegment> DelaunayTriangulation( /*BitmapData keepOutMask = null*/)
+        public List<GeoLineSegment> DelaunayTriangulation( /*BitmapData keepOutMask = null*/)
         {
             return DelaunayHelpers.DelaunayLinesForEdges(
                 DelaunayHelpers.SelectNonIntersectingEdges( /*keepOutMask,*/_edges));
         }
 
-        public List<LineSegment> Hull()
+        public List<GeoLineSegment> Hull()
         {
             return DelaunayHelpers.DelaunayLinesForEdges(HullEdges());
         }
@@ -190,10 +188,10 @@ namespace Delaunay
 
             EdgeReorderer reorderer = new EdgeReorderer(hullEdges, VertexOrSite.SITE);
             hullEdges = reorderer.edges;
-            List<Side> orientations = reorderer.edgeOrientations;
+            List<LRSide> orientations = reorderer.edgeOrientations;
             reorderer.Dispose();
 
-            Side orientation;
+            LRSide orientation;
 
             int n = hullEdges.Count;
             for (int i = 0; i < n; ++i)
@@ -206,11 +204,11 @@ namespace Delaunay
             return points;
         }
 
-        public List<LineSegment> SpanningTree(
+        public List<GeoLineSegment> SpanningTree(
             KruskalType type = KruskalType.MINIMUM /*, BitmapData keepOutMask = null*/)
         {
             List<Edge> edges = DelaunayHelpers.SelectNonIntersectingEdges( /*keepOutMask,*/_edges);
-            List<LineSegment> segments = DelaunayHelpers.DelaunayLinesForEdges(edges);
+            List<GeoLineSegment> segments = DelaunayHelpers.DelaunayLinesForEdges(edges);
             return DelaunayHelpers.Kruskal(segments, type);
         }
 
@@ -249,7 +247,7 @@ namespace Delaunay
             Site newSite, bottomSite, topSite, tempSite;
             Vertex v, vertex;
             float2 newintstar = float2.zero; //Because the compiler doesn't know that it will have a value - Julian
-            Side leftRight;
+            LRSide leftRight;
             Halfedge lbnd, rbnd, llbnd, rrbnd, bisector;
             Edge edge;
 
@@ -291,7 +289,7 @@ namespace Delaunay
                     //trace("new edge: " + edge);
                     _edges.Add(edge);
 
-                    bisector = Halfedge.Create(edge, Side.LEFT);
+                    bisector = Halfedge.Create(edge, LRSide.LEFT);
                     halfEdges.Add(bisector);
                     // inserting two Halfedges into edgeList constitutes Step 10:
                     // insert bisector to the right of lbnd:
@@ -308,7 +306,7 @@ namespace Delaunay
                     }
 
                     lbnd = bisector;
-                    bisector = Halfedge.Create(edge, Side.RIGHT);
+                    bisector = Halfedge.Create(edge, LRSide.RIGHT);
                     halfEdges.Add(bisector);
                     // second Halfedge for Step 10:
                     // insert bisector to the right of lbnd:
@@ -340,18 +338,18 @@ namespace Delaunay
 
                     v = lbnd.vertex;
                     v.SetIndex();
-                    lbnd.edge.SetVertex((Side)lbnd.leftRight, v);
-                    rbnd.edge.SetVertex((Side)rbnd.leftRight, v);
+                    lbnd.edge.SetVertex((LRSide)lbnd.leftRight, v);
+                    rbnd.edge.SetVertex((LRSide)rbnd.leftRight, v);
                     edgeList.Remove(lbnd);
                     heap.Remove(rbnd);
                     edgeList.Remove(rbnd);
-                    leftRight = Side.LEFT;
+                    leftRight = LRSide.LEFT;
                     if (bottomSite.y > topSite.y)
                     {
                         tempSite = bottomSite;
                         bottomSite = topSite;
                         topSite = tempSite;
-                        leftRight = Side.RIGHT;
+                        leftRight = LRSide.RIGHT;
                     }
 
                     edge = Edge.CreateBisectingEdge(bottomSite, topSite);
@@ -420,7 +418,7 @@ namespace Delaunay
                 return fortunesAlgorithm_bottomMostSite;
             }
 
-            return edge.Site((Side)he.leftRight);
+            return edge.Site((LRSide)he.leftRight);
         }
 
         private Site FortunesAlgorithm_rightRegion(Halfedge he)
@@ -431,7 +429,7 @@ namespace Delaunay
                 return fortunesAlgorithm_bottomMostSite;
             }
 
-            return edge.Site(SideHelper.Other((Side)he.leftRight));
+            return edge.Site(SideHelper.Other((LRSide)he.leftRight));
         }
 
         public static int CompareByYThenX(Site s1, Site s2)

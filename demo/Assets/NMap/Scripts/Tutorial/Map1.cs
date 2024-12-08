@@ -1,4 +1,4 @@
-﻿using Delaunay;
+﻿using ET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,7 +6,7 @@ using System.Linq;
 using Unity.Mathematics;
 using Random = Unity.Mathematics.Random;
 
-namespace Assets.Map
+namespace ET
 {
     public class Map1
     {
@@ -16,8 +16,8 @@ namespace Assets.Map
         public const float Height = 50;
         const int NUM_LLOYD_RELAXATIONS = 2;
 
-        public Graph Graph { get; private set; }
-        public Center SelectedCenter { get; private set; }
+        public MapGraph MapGraph { get; private set; }
+        public MapCenter SelectedMapCenter { get; private set; }
 
         private Random random;
         public void SetSeed(uint seed)
@@ -41,11 +41,11 @@ namespace Assets.Map
             if (needRelax)
             {
                 for (int i = 0; i < NUM_LLOYD_RELAXATIONS; i++)
-                    points = Graph.RelaxPoints(points, Width, Height).ToList();
+                    points = MapGraph.RelaxPoints(points, Width, Height).ToList();
             }
             var voronoi = new Voronoi(points, colors, new RectangleF(0, 0, Width, Height));
 
-            Graph = new Graph(points, voronoi, (int)Width, (int)Height, _lakeThreshold);
+            MapGraph = new MapGraph(points, voronoi, (int)Width, (int)Height, _lakeThreshold);
         }
     }
 }

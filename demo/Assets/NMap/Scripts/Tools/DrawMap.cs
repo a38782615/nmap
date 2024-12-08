@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Assets.Map;
+using ET;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -33,7 +33,7 @@ namespace ET
         private Dictionary<int2, MapNode> m_map = new Dictionary<int2, MapNode>();
         private List<int> m_queryResult = new List<int>();
 
-        public void GenMap(Map m)
+        public void GenMap(BiomeMap m)
         {
             var self = this;
             grounds.ForEach((e) =>
@@ -42,16 +42,16 @@ namespace ET
             });
             kdTree = new KDTree();
             query = new KDQuery();
-            var centers = m.Graph.centers;
+            var centers = m.MapGraph.centers;
             foreach (var c in centers)
             {
                 centerIdxs.Add(new float3(c.point, 0));
             }
 
             kdTree.Build(centerIdxs.ToArray());
-            for (int i = 0; i < m.Graph.Width; i++)
+            for (int i = 0; i < m.MapGraph.Width; i++)
             {
-                for (int j = 0; j < m.Graph.Height; j++)
+                for (int j = 0; j < m.MapGraph.Height; j++)
                 {
                     var p = new float3(i, j, 0);
                     m_queryResult.Clear();
@@ -63,7 +63,7 @@ namespace ET
                         var pos = new int2(i, j);
                         var node = new MapNode()
                         {
-                            Center = center,
+                            MapCenter = center,
                             Pos = pos
                         };
                         m_map[pos] = node;
@@ -102,13 +102,13 @@ namespace ET
 
         public bool IsWater(MapNode node)
         {
-            var b = node.Center.biome == Biome.Ocean || node.Center.biome == Biome.Lake || node.Center.biome == Biome.TropicalRainForest || node.Center.biome == Biome.Ice;
+            var b = node.MapCenter.biome == Biome.Ocean || node.MapCenter.biome == Biome.Lake || node.MapCenter.biome == Biome.TropicalRainForest || node.MapCenter.biome == Biome.Ice;
             return b;
         }
 
         public bool IsGrass(MapNode node)
         {
-            var b = node.Center.biome == Biome.Grassland;
+            var b = node.MapCenter.biome == Biome.Grassland;
             return b;
         }
     }

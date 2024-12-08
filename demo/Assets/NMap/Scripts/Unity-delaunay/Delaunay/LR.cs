@@ -1,20 +1,16 @@
-namespace Delaunay
+namespace ET
 {
-	namespace LR
-	{
-		public enum Side
-		{
-			LEFT = 0,
-			RIGHT
-		}
+    public enum LRSide
+    {
+        LEFT = 0,
+        RIGHT
+    }
 
-		public class SideHelper
-		{
-			public static Side Other (Side leftRight)
-			{
-				return leftRight == Side.LEFT ? Side.RIGHT : Side.LEFT;
-			}
-		}
-
-	}
+    public class SideHelper
+    {
+        public static LRSide Other(LRSide leftRight)
+        {
+            return leftRight == LRSide.LEFT ? LRSide.RIGHT : LRSide.LEFT;
+        }
+    }
 }

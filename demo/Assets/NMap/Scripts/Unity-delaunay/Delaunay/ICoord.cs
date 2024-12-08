@@ -1,13 +1,9 @@
-
 using Unity.Mathematics;
 
-namespace Delaunay
+namespace ET
 {
-	
-	public interface ICoord
-	{
-		float2 Coord {
-			get;
-		}
-	}
+    public interface ICoord
+    {
+        float2 Coord { get; }
+    }
 }

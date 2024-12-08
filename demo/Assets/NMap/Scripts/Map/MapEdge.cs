@@ -1,12 +1,12 @@
 ﻿using Unity.Mathematics;
 
-namespace Assets.Map
+namespace ET
 {
-    public class Edge
+    public class MapEdge
     {
         public int index;
-        public Center d0, d1;  // Delaunay edge
-        public Corner v0, v1;  // Voronoi edge
+        public MapCenter d0, d1;  // Delaunay edge
+        public MapCorner v0, v1;  // Voronoi edge
         public float2 midpoint;  // halfway between v0,v1
         public int river;  // volume of water, or 0
     }
