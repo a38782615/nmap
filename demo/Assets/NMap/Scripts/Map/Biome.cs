@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace ET
 {
     public static class BiomeProperties
     {
-        public static Dictionary<Biome, Color> Colors = new Dictionary<Biome, Color>
+        public static Dictionary<Biome, float4> Colors = new Dictionary<Biome, float4>
         {
             { Biome.Ocean, HexToColor("44447a") },
             //{ COAST, HexToColor("33335a") },
@@ -64,12 +64,12 @@ namespace ET
             { Biome.TropicalRainForest, "热带雨林"},
             { Biome.TropicalSeasonalForest, "热带季雨林"},
         };
-        static Color HexToColor(string hex)
+        static float4 HexToColor(string hex)
         {
             byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
             byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
             byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-            return new Color32(r, g, b, 255);
+            return new float4(r, g, b, 255);
         }
     }
 

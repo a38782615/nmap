@@ -14,13 +14,27 @@ namespace ET
             _textureScale = textureScale;
         }
 
+        private float4 ToFloat4(Color c)
+        {
+            float4 f = new float4(c.r, c.g, c.b, c.a);
+            return f;
+        }
+
+        private Color ToClor(float4 f)
+        {
+            Color c = new Color(f.x, f.y, f.z, f.w);
+            return c;
+        }
+
         public Texture2D GetTexture(BiomeMap biomeMap, NoisyEdges noisyEdge)
         {
             int textureWidth = (int)BiomeMap.Width * _textureScale;
             int textureHeight = (int)BiomeMap.Height * _textureScale;
 
             Texture2D texture = new Texture2D(textureWidth, textureHeight, TextureFormat.RGB565, true);
-            texture.SetPixels(Enumerable.Repeat(BiomeProperties.Colors[Biome.Ocean], textureWidth * textureHeight).ToArray());
+            var f = BiomeProperties.Colors[Biome.Ocean];
+            var c = ToClor(f);
+            texture.SetPixels(Enumerable.Repeat(c, textureWidth * textureHeight).ToArray());
 
             //绘制扰乱的边缘
             foreach (MapCenter p in biomeMap.MapGraph.centers)
@@ -81,8 +95,8 @@ namespace ET
 
         private void DrawLine(Texture2D texture, float x0, float y0, float x1, float y1, Color color)
         {
-            texture.DrawLine((int) (x0*_textureScale), (int) (y0*_textureScale), (int) (x1*_textureScale),
-                (int) (y1*_textureScale), color);
+            texture.DrawLine((int)(x0 * _textureScale), (int)(y0 * _textureScale), (int)(x1 * _textureScale),
+                (int)(y1 * _textureScale), color);
         }
     }
 }

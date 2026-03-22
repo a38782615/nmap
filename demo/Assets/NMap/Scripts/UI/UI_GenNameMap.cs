@@ -10,17 +10,17 @@ public class UI_GenNameMap : MonoBehaviour
 
     private InputField _inputName;
     private Button _btnGen;
-	// Use this for initialization
+    // Use this for initialization
     private Font _dFont;
     private RawImage _image;
     private Text _mouseBiome;
-	void Start ()
-	{
+    void Start()
+    {
         _inputName = transform.Find("inputName").GetComponent<InputField>();
         _btnGen = transform.Find("btnGen").GetComponent<Button>();
         _image = transform.Find("RawImage").GetComponent<RawImage>();
         _mouseBiome = transform.Find("MouseBiome").GetComponent<Text>();
-	    _dFont = _inputName.textComponent.font;
+        _dFont = _inputName.textComponent.font;
 
         _btnGen.onClick.AddListener(GenMap);
 
@@ -31,7 +31,7 @@ public class UI_GenNameMap : MonoBehaviour
 
         transform.Find("Toggles2/Toggle1").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLand);
         transform.Find("Toggles2/Toggle2").GetComponent<Toggle>().onValueChanged.AddListener(ToggleLake);
-	}
+    }
 
     void Update()
     {
@@ -41,7 +41,7 @@ public class UI_GenNameMap : MonoBehaviour
     private float _nextCheckTime;
     private void CheckMouseBiome()
     {
-        if(Time.time < _nextCheckTime)
+        if (Time.time < _nextCheckTime)
             return;
         _nextCheckTime = Time.time + 0.1f;
 
@@ -66,10 +66,11 @@ public class UI_GenNameMap : MonoBehaviour
 
     private Biome ChangeColorToBiome(Color color)
     {
+        var f = ToFloat4(color);
         Biome b = Biome.Ocean;
         foreach (var bc in BiomeProperties.Colors)
         {
-            if (ColorNearby(bc.Value , color))
+            if (ColorNearby(bc.Value, f))
             {
                 b = bc.Key;
                 break;
@@ -78,11 +79,23 @@ public class UI_GenNameMap : MonoBehaviour
         return b;
     }
 
-    bool ColorNearby(Color ls, Color rs)
+    private float4 ToFloat4(Color c)
     {
-        bool rSame = Mathf.Abs(ls.r - rs.r) < 0.02f;
-        bool gSame = Mathf.Abs(ls.g - rs.g) < 0.02f;
-        bool bSame = Mathf.Abs(ls.b - rs.b) < 0.02f;
+        float4 f = new float4(c.r, c.g, c.b, c.a);
+        return f;
+    }
+
+    private Color ToClor(float4 f)
+    {
+        Color c = new Color(f.x, f.y, f.z, f.w);
+        return c;
+    }
+
+    bool ColorNearby(float4 ls, float4 rs)
+    {
+        bool rSame = Mathf.Abs(ls.x - rs.x) < 0.02f;
+        bool gSame = Mathf.Abs(ls.y - rs.y) < 0.02f;
+        bool bSame = Mathf.Abs(ls.z - rs.z) < 0.02f;
         return rSame && gSame && bSame;
     }
 
@@ -148,7 +161,7 @@ public class UI_GenNameMap : MonoBehaviour
         {
             int x = Convert.ToInt32(q.x / Width * _txtWidth);
             int y = Convert.ToInt32(q.y / Height * _txtHeight);
-            Color tColor = _txtTexture.GetPixel(x,y);
+            Color tColor = _txtTexture.GetPixel(x, y);
             bool isLand = false;
             if (_isLake)
                 isLand = tColor != Color.white;

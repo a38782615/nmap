@@ -111,8 +111,9 @@ public static class DrawUtil
         }
     }
 
-    public static void FillPolygon(this Texture2D texture, float2[] points, Color color)
+    public static void FillPolygon(this Texture2D texture, float2[] points, float4 colorf)
     {
+        Color c = new Color(colorf.x, colorf.y, colorf.z, colorf.w);
         // http://alienryderflex.com/polygon_fill/
 
         var IMAGE_BOT = (int)points.Max(p => p.y);
@@ -173,7 +174,7 @@ public static class DrawUtil
                     if (nodeX[i + 1] > IMAGE_RIGHT)
                         nodeX[i + 1] = IMAGE_RIGHT;
                     for (j = nodeX[i]; j < nodeX[i + 1]; j++)
-                        texture.SetPixel(j, pixelY, color);
+                        texture.SetPixel(j, pixelY, c);
                 }
             }
         }
